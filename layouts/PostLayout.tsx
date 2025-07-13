@@ -96,11 +96,11 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
             <div className="divide-y divide-violet-100 dark:divide-gray-700">
               <div className="prose dark:prose-invert max-w-none pt-10 pb-8">{children}</div>
               <div className="py-4 text-sm text-gray-700 dark:text-gray-300">
-                <Link href={discussUrl(path)} rel="nofollow">
+                {/* <Link href={discussUrl(path)} rel="nofollow">
                   Discuss on Twitter
-                </Link>
+                </Link> */}
                 {` • `}
-                <Link href={editUrl(filePath)}>View on GitHub</Link>
+                <Link href={editUrl(filePath)}>在GitHub上查看</Link>
               </div>
               {siteMetadata.comments && (
                 <div

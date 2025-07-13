@@ -1,0 +1,703 @@
+---
+title: 'Nestjs打通mysql与GraphQL链路、graphql 分页配置'
+date: '2022-07-24'
+tags: ['nest-js', 'mysql', 'GraphQL', 'node']
+draft: false
+summary: 'Nestjs打通mysql与GraphQL链路、graphql 分页配置'
+---
+
+## 大纲
+
+- Nest
+  - 安装@nestjs/cli
+  - 创建nest项目
+- Mysql与typeorm
+  - 安装mysql
+  - 定义数据库实体
+- GraphQL
+  - 安装graphql
+  - 定义graphql 数据模型
+  - graphql query实现
+- GraphQL 定义分页类型与实现
+  - resful分页实现
+  - graphql数据类型定义与分页实现
+
+如看本文，默认你对nestjs有一定的了解了。
+
+- Nestjs:https://docs.nestjs.com/
+- Mysql:https://www.mysql.com/
+- GraphGL:https://graphql.org/
+
+实例代码：https://github.com/nseeart/nest-demo
+
+### 模块依赖关系
+
+![graphql.drawio.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-01.webp)
+
+## 一、Nest
+
+#### 1、安装nestjs
+
+```bash
+pnpm i -g @nestjs/cli
+```
+
+#### 2、创建nest项目
+
+```bash
+nest new nest-mysql-graphql
+```
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-02.webp)
+
+##### 3、nest入口加Logger，方便调试,`src/main.ts`
+
+```ts
+// src/main.ts
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { Logger } from '@nestjs/common'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+  Logger.log('http://127.0.0.1:3000', '项目启动成功')
+}
+bootstrap()
+```
+
+## 二、Nest与Mysql
+
+#### 1、安装mysql
+
+```bash
+pnpm install @nestjs/typeorm typeorm mysql2 --save
+```
+
+链接mysql数据，如没报错，那恭喜你链接成功！
+
+```
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+// 导出orm模块
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '123456', // 数据库密码，自己定义的
+      database: 'nest-mysql-graphql', // 数据库名称，提前建好
+      entities: [],
+      synchronize: true,
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+#### 2、使用 `nest g resource` 生成`CRUD`模块代码
+
+```bash
+nest g resource modules/user
+```
+
+在src/modules下生成user模块
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-03.webp)
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-04.webp)
+
+user模块，依赖`@nestjs/mapped-types`，继续安装
+
+```bash
+pnpm install @nestjs/mapped-types --save
+```
+
+#### 3、定义user实体，`src/modules/user/entities/user.entity.ts`
+
+```ts
+// src/modules/user/entities/user.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn } from 'typeorm'
+
+@Entity('user')
+export class UserEntity {
+  @PrimaryGeneratedColumn({
+    comment: '用户id',
+  })
+  id: number
+
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: false,
+    comment: '用户名',
+  })
+  username: string
+
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: true,
+    comment: '邮件',
+  })
+  email: string
+
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: true,
+    comment: '密码',
+  })
+  password: string
+
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: '添加时间',
+  })
+  createdAt: Date
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: '更新时间',
+  })
+  updatedAt: Date
+}
+```
+
+#### 4、在配置中加载user实体
+
+```ts
+// src/app.module.ts
+import { Module } from '@nestjs/common'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { TypeOrmModule } from '@nestjs/typeorm'
+// nest g resource modules/user 命令自动注入
+import { UserModule } from './modules/user/user.module'
+// 导入实体到typeorm配置中，数据库自动创建user表
+import { UserEntity } from './modules/user/entities/user.entity'
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'wujian798',
+      database: 'nest-mysql-graphql',
+      entities: [UserEntity],
+      synchronize: true,
+    }),
+    UserModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+自动创建user表
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-05.webp)
+
+#### 5、TypeOrmModule.forFeature加载user实体到user模块中
+
+```ts
+// src/modules/user/user.module.ts
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { UserService } from './user.service'
+import { UserController } from './user.controller'
+import { UserEntity } from './entities/user.entity'
+
+@Module({
+  imports: [TypeOrmModule.forFeature([UserEntity])],
+  controllers: [UserController],
+  providers: [UserService],
+})
+export class UserModule {}
+```
+
+#### 6、user服务关联实体
+
+```ts
+// src/modules/user/user.service.ts
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { UserEntity } from './entities/user.entity'
+
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>
+  ) {}
+  create(createUserDto: CreateUserDto) {
+    this.userRepository.create(createUserDto)
+    return this.userRepository.save(createUserDto)
+  }
+
+  findAll() {
+    return this.userRepository.find()
+  }
+
+  findOne(id: number) {
+    return this.userRepository.findOne({
+      where: { id },
+    })
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return this.userRepository.update(id, updateUserDto)
+  }
+
+  remove(id: number) {
+    return this.userRepository.delete(id)
+  }
+}
+```
+
+postman测试curd，结果如下：
+
+- `POST` 创建
+  ![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-06.webp)
+- `PUT` 编辑
+  ![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-07.webp)
+- `GET` 列表
+  ![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-08.webp)
+- `GET` 列表项
+  ![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-09.webp)
+- `DELETE` 删除
+  ![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-10.webp)
+
+所有接口到正常，到这里nest框架mvp已完成，我们继续吧
+
+## 三、nest与graphql
+
+#### 1、安装graphql
+
+```bash
+pnpm i @nestjs/graphql @nestjs/apollo graphql apollo-server-express
+```
+
+#### 2、定义graphql 数据模型，可以与共用user实体类
+
+```ts
+// // src/modules/user/entities/user.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn } from 'typeorm'
+import { Field, Int, ObjectType } from '@nestjs/graphql'
+
+@ObjectType()
+@Entity('user')
+export class UserEntity {
+  @Field(() => Int)
+  @PrimaryGeneratedColumn({
+    comment: '用户id',
+  })
+  id: number
+
+  @Field()
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: false,
+    comment: '用户名',
+  })
+  username: string
+
+  @Field()
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: true,
+    comment: '邮件',
+  })
+  email: string
+
+  @Field()
+  @Column({
+    type: 'varchar',
+    width: 255,
+    nullable: true,
+    comment: '密码',
+  })
+  password: string
+
+  @Field()
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: '添加时间',
+  })
+  createdAt: Date
+
+  @Field()
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: '更新时间',
+  })
+  updatedAt: Date
+}
+```
+
+#### 3、在user文件夹新增graphql resolver
+
+```ts
+// src/modules/user/user.resolver.ts
+import { UserEntity } from './entities/user.entity'
+import { UserService } from './user.service'
+import { Resolver, Query, Args } from '@nestjs/graphql'
+
+@Resolver(() => UserEntity)
+export class UserResolver {
+  constructor(private readonly userService: UserService) {}
+
+  @Query(() => [UserEntity], { name: 'users', nullable: true })
+  users(): Promise<UserEntity[]> {
+    return this.userService.findAll()
+  }
+
+  @Query(() => UserEntity, { nullable: true })
+  user(@Args('id') id: number): Promise<UserEntity> {
+    return this.userService.findOne(id)
+  }
+}
+```
+
+#### 3、graphql resolver导入 module providers中
+
+```ts
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { UserService } from './user.service'
+import { UserController } from './user.controller'
+import { UserEntity } from './entities/user.entity'
+import { UserResolver } from './user.resolver'
+
+@Module({
+  imports: [TypeOrmModule.forFeature([UserEntity])],
+  controllers: [UserController],
+  providers: [UserResolver, UserService],
+})
+export class UserModule {}
+```
+
+#### 4、配置graphql
+
+```ts
+// src/app.module.ts
+import { Module } from '@nestjs/common'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { TypeOrmModule } from '@nestjs/typeorm'
+// nest g resource modules/user 命令自动注入
+import { UserModule } from './modules/user/user.module'
+// 导入实体到typeorm配置中，数据库自动创建user表
+import { UserEntity } from './modules/user/entities/user.entity'
+import { GraphQLModule } from '@nestjs/graphql'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'wujian798',
+      database: 'nest-mysql-graphql',
+      entities: [UserEntity],
+      synchronize: true,
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+    }),
+    UserModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+查看：http://127.0.0.1:3000/graphql
+可以该可视化工具测试graphql
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-11.webp)
+
+```graphql
+query {
+  user(id: 3) {
+    id
+    username
+    password
+    email
+  }
+}
+```
+
+- 测试一条数据
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-12.webp)
+
+- 测试多数据
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-13.webp)
+
+- 测试集合数据
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-14.webp)
+
+写到这，mysql到grapql链路已完成，本想就此结束。再想想自己处理分页是，遇到了很多炕，在掘金、google、github找了很久，没找到满意的demo（解决方案），后来还是回到nest官网上找到解决方法。
+
+> 位置链接:https://docs.nestjs.com/graphql/resolvers
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-15.webp)
+
+## 四、 GraphQL 定义分页类型与实现
+
+#### 1、RESTful分页实现，
+
+在 `user.service.ts` 添加分页服务方法 `findAndCount`
+
+```ts
+// src/modules/user/user.service.ts
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { UserEntity } from './entities/user.entity'
+import { BaseService, IPaginationOptions } from '../../globals/base.service'
+
+@Injectable()
+export class UserService extends BaseService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>
+  ) {
+    super(userRepository)
+  }
+  // 添加分页服务方法
+  findAndCount(options?: IPaginationOptions) {
+    return this.findListAndPage(options)
+  }
+}
+```
+
+分页方法提取到`base.service.ts`中，方便复用。
+
+```ts
+// src/globals/base.service.ts
+import { Repository, FindOptionsRelations } from 'typeorm'
+
+export interface IPagination {
+  page?: number
+  size?: number
+}
+
+// 分页返回体数据结构
+export interface IPaginationResponse<T = any> {
+  list: Array<T>
+  pagination: IPagination
+  total: number
+}
+
+export interface IPaginationOptions {
+  pagination?: IPagination
+  order?: object
+  where?: object
+  relations?: FindOptionsRelations<any>
+  select?: object
+}
+
+export class BaseService {
+  constructor(private readonly currentRepository: Repository<any>) {}
+  async findListAndPage(options: IPaginationOptions): Promise<IPaginationResponse> {
+    const DEFOULT_PAGE = 1
+    const DEFOULT_SIZE = 20
+    const {
+      pagination = { page: DEFOULT_PAGE, size: DEFOULT_SIZE },
+      order = {},
+      where = {},
+      relations = {},
+      select = {},
+    } = options || {}
+    const { page = DEFOULT_PAGE, size = DEFOULT_SIZE } = pagination
+    const [list, total]: [Array<any>, number] = await this.currentRepository.findAndCount({
+      take: size,
+      skip: (page - 1) * size,
+      order,
+      where,
+      relations,
+      select,
+    })
+    return {
+      list,
+      pagination: {
+        page,
+        size,
+      },
+      total,
+    }
+  }
+}
+```
+
+在`user.controller.ts`中添加分页方法 `findAndCount`
+
+```ts
+// src/modules/user/user.controller.ts
+import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common'
+import { UserService } from './user.service'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { getNumber } from '../../utils'
+
+@Controller('user')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+  @Get('page')
+  findAndCount(@Query() query: { page?: number; size?: number } = {}) {
+    const { page, size } = query
+    return this.userService.findAndCount({
+      pagination: { page: getNumber(page), size: getNumber(size) },
+    })
+  }
+}
+```
+
+resful接口测试分页功能，如下图
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-16.webp)
+
+#### 2、GraphQL数据类型定义与分页实现
+
+在`user.resolver.ts`中添加分页query `userList`
+
+```ts
+// src/modules/user/user.resolver.ts
+import { UserEntity } from './entities/user.entity'
+import { UserService } from './user.service'
+import { Resolver, Query, Args } from '@nestjs/graphql'
+// 定义分页数据结构
+import { UserListPaginated } from './dto/userList.paginated.gql'
+
+@Resolver(() => UserEntity)
+export class UserResolver {
+  constructor(private readonly userService: UserService) {}
+
+  @Query(() => UserListPaginated, { name: 'userList', nullable: true })
+  userList(
+    @Args('page', {
+      type: () => Int,
+      defaultValue: 1,
+    })
+    page?: number,
+    @Args('size', {
+      type: () => Int,
+      defaultValue: 20,
+      nullable: true,
+    })
+    size?: number
+  ): Promise<UserListPaginated> {
+    return this.userService.findListAndPage({
+      pagination: {
+        page,
+        size,
+      },
+    })
+  }
+}
+```
+
+[`重要`] 定义分页数据结构
+
+```ts
+// src/modules/user/dto/userList.paginated.gql.ts
+import { ObjectType } from '@nestjs/graphql'
+import { UserEntity } from '../entities/user.entity'
+import { Paginated } from '../../../globals/paginated.gql'
+
+@ObjectType()
+export class UserListPaginated extends Paginated<UserEntity>(UserEntity) {}
+```
+
+[`重要`]分页方法提取到`paginated.gql.ts`中，方便复用。
+
+```ts
+// src/globals/paginated.gql.ts
+import { Field, ObjectType, Int } from '@nestjs/graphql'
+import { Type } from '@nestjs/common'
+
+interface IPagination {
+  page?: number
+  size?: number
+}
+
+export interface IPaginatedType<T> {
+  list: T[]
+  total: number
+  pagination: IPagination
+}
+
+export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
+  @ObjectType(`${classRef.name}Pagination`)
+  abstract class Pagination {
+    @Field(() => Number)
+    size: number
+
+    @Field(() => Number)
+    page: number
+  }
+
+  @ObjectType({ isAbstract: true })
+  abstract class PaginatedType implements IPaginatedType<T> {
+    @Field(() => Pagination, { nullable: true })
+    pagination: Pagination
+
+    @Field(() => [classRef], { nullable: true })
+    list: T[]
+
+    @Field(() => Int)
+    total: number
+  }
+  return PaginatedType as Type<IPaginatedType<T>>
+}
+```
+
+测试：http://127.0.0.1:3000/graphql
+
+- 默认参数测试
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-17.webp)
+
+- 添加上参数`（page：1，size：2）`测试
+
+![image.png](/static/images/nestjs-graphql-mysql/nestjs-graphql-18.webp)
+
+## 五、 总结
+
+个人还是比较Nestjs与GraphQL的，nestjs入门比较简单的，自己用nestjs写一个博客，就能入门，但是要精通它（特别是它的周边配套，服务端的知识，太多了）还是很难的。
+最近自己在写一下小项目，一直在学习，希望能与jym交流，有问题留言。
+
+实例代码：https://github.com/nseeart/nest-demo ，希望能帮到大家。

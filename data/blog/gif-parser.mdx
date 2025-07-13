@@ -1,0 +1,670 @@
+---
+title: '[gif-parser]带你如何用js读取gif图片数据流，解码gif'
+date: '2021-10-24'
+tags: ['gif-parser', 'parser', 'js', '图片数据流', '解码gif']
+draft: false
+summary: '大家好，最近喜欢上文件流，对它很好奇，如psdjs解析.psd文件、xgplayerjs视频解码等，原理都类似，只是这些太复杂，不好下手。最终找到我们今天的主角gif。'
+---
+
+### 一、前言
+
+大家好，最近喜欢上文件流，对它很好奇，如`psdjs解析.psd文件`、`xgplayerjs视频解码`等，原理都类似，只是这些太复杂，不好下手。最终找到我们今天的主角`gif`。
+
+### 二、gif是啥
+
+**图像互换格式**（英语：Graphics Interchange Format，简称**GIF**）是一种位图，以8位色（即256种颜色）重现真彩色的图像。它实际上是一种压缩文档，采用LZW压缩算法进行编码，有效地减少了图像文件在网络上传输的时间。它是目前万维网广泛应用的网络传输图像格式之一。
+
+### 三、gif文件流结构
+
+#### 1、由多种不同类型块组成
+
+- **未标记块**：文件头、逻辑屏幕描述符、全局颜色表、局部颜色表
+- **控制块**：图形控制扩展
+- **图形渲染块**：纯文本扩展、图像描述符
+- **特殊用途块**：应用扩展、评论扩展、数据流结束标记
+- **图像数据块**：图像数据
+
+![gif.png](/static/images/gif-parser/gif-parser-01.webp)
+
+#### 2、gif解析原理
+
+- 解析步骤
+
+1. js读取`.gif`图片文件(fetch/ajax/file)
+2. 转成`arrayBuffer`数据流
+3. 将`arrayBuffer`放到`DataView`
+4. 使用`DataView`底层接口`getInt8/getUit8`读取`十六进制编码`
+5. 将`十六进制编码`解成对应的`Unicode编码字符`、`字符串`、`数字`、`颜色值`
+   ![gif-Page-2.drawio.png](/static/images/gif-parser/gif-parser-02.webp)
+
+```ts
+export class Parser {
+  private dataView: Uint8Array = new DataView()
+  private index: number = 0
+  constructor(url: string) {
+    fetch(url)
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => new DataView(arrayBuffer))
+      .then((dataView) => {
+        this.dataView = dataView
+        const str_1 = this.readUint8()
+        // 71
+        const str_2 = this.readUint8()
+        // 73
+        const str_3 = this.readUint8()
+        // 70
+        const str = String.fromCharCode(str_1, str_2, str_3)
+        // GIF
+      })
+  }
+  // 读取一个无符号8位整数（无符号字节）
+  readUint8(): number {
+    const value = this.dataView.getUint8(this.index)
+    this.seek(1)
+    return value
+  }
+  // 查找索引位置
+  seek(x: number): void {
+    this.index += x
+  }
+}
+
+new Parser('/path/xx.gif')
+```
+
+- 解码过程：
+
+1. 顺着`Header`、`LogicalScreenDescrptor`、`GlobalColorTable`（非必要）、`GraphicControlExtension` 、`Application`（非必要）、`CommentExtension`（非必要）、`ImageDescriptor`、`LocalColorTable`（非必要）、`ImageData`、`PlainTextExtension`（非必要）读取,完成第一帧（图片）
+2. 接下来重复`GraphicControlExtension` 、`ImageDescriptor`、`ImageData`读取剩下的帧图片数据
+3. 直到最后读取`Trailer`gif数据流结束标记，才算完成
+4. 当然，在读取过程中，每个块都有自己特殊的编码标记，后面代码实现详细介绍
+   ![gif-Page-1.drawio.png](/static/images/gif-parser/gif-parser-03.webp)
+
+### 四、gif文件流数据块
+
+#### 1、文件头 - Header
+
+1. **描述**: 标识在GIF文件头数据流的上下文中，这签名字段标记数据流的开始，版本号字段标识解码器完全需要的能力集处理数据流。 这个块是必需的； 每个数据流只存在一个Header。
+2. **所需版本**：不适用。 该块不受版本号的限制。 此块必须出现在每个数据流的开头。
+3. **句法**：
+
+![gif-Page-Header.drawio.png](/static/images/gif-parser/gif-parser-04.webp)
+
+4. **在gif数据流中查看**：签名、版本信息
+   > 用十六进制编辑器（Hex Fiend）打开.gif图片文件
+
+![image.png](/static/images/gif-parser/gif-parser-05.webp)
+
+如上图编辑器所见：
+
+- 左边选中 `47` `49` `46` `38` `39` `61`，字节编码
+- 右边选中 `G` `I` `F` `8` `9` `a`，Unicode 编码的字符
+
+一一对应，解码原理，如下图所示：
+
+![gif-Page-3.drawio.png](/static/images/gif-parser/gif-parser-06.webp)
+
+> 在js对中存储，先加载gif文件，返回arrayBuffter，发现arrayBuffter存储的数据是`十进制`，直接用`String.fromCharCode()`解码，返回 `Unicode 编码的字符` > ![image.png](/static/images/gif-parser/gif-parser-07.webp)
+
+5. **代码实现**：是不是大家最喜欢还是看代码
+
+```ts
+// 文件头 - 部分代码
+export class Header {
+  private signature: string = ''
+  private version: string = ''
+  constructor(private stream: Stream) {
+    this.stream = stream
+  }
+
+  parse() {
+    // 签名，"GIF"
+    this.signature = this.stream.readString(3)
+    // 版本，"89a"
+    this.version = this.stream.readString(3)
+    if (this.signature !== 'GIF') throw new Error('Not a GIF file.')
+  }
+}
+```
+
+> [Stream](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/stream.ts)类是基于DataView的底层接口实现的，详细[Header](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/header.ts)类实现前github查看。
+
+#### 2、逻辑屏幕描述符 - LogicalScreenDescriptor
+
+1. **描述**：逻辑屏幕描述符包含定义将在其中呈现图像的显示设备区域所需的参数。 该块中的坐标是相对于虚拟屏幕的左上角给出的；这个块是必需的； 每个数据流必须存在一个逻辑屏幕描述符。
+2. **该块跟版本无关**：该块必须紧跟在 Header 之后。
+3. **句法**：
+   ![gif-Page-LogicalScreenDescriptor.drawio.png](/static/images/gif-parser/gif-parser-08.webp)
+
+- **Logical Screen Width**：`逻辑屏幕的宽度`（以像素为单位），占2字节空间
+- **Logical Screen Height**：`逻辑屏幕的高度`（以像素为单位），占2字节空间
+- **Packed Fields**：压缩字段，占1字节空间，里面包含4个值
+  1. **Global Color Table Flag**：`全局颜色表标志` 表示存在全局颜色表的标志； 如果设置了标志，全局颜色表将立即跟随逻辑屏幕描述符。 该标志还选择了背景颜色索引的解释； 如果设置了该标志，则背景颜色索引字段的值应用作背景颜色的表索引。 （该字段是字节的最高有效位。）0 - 没有全局颜色表，背景颜色索引字段没有意义。1 - 一个全局颜色表将紧随其后，背景颜色索引字段是有意义的。
+  2. **Color Resolution**：`颜色分辨率` 颜色的位数减 1, 颜色有1位、8位、16位、32位、等。根据定义，GIF 图像不能超过 256 种颜色或 8 位深度。
+  3. **Sort Flag**：`排序标志` **0** - 未设置。**1** - 按重要性递减排序，最重要的颜色在前。
+  4. **Size of Global Color Table**: `全局颜色表的大小` 如果全局颜色表标志设置为 1，则该字段中的值用于计算全局颜色表中包含的字节数。 要确定颜色表的实际大小，请将 2 提高到 [字段值 + 1]。 即使没有指定全局颜色表，也要根据上述公式设置该字段，以便解码器可以选择最佳图形模式来显示流。（该字段由字节的 3个最低有效位组成。）
+- **Background Color Index**: `背景颜色索引`背景颜色全局颜色表的索引。 背景颜色是用于屏幕上未被图像覆盖的像素的颜色。 如果全局颜色表标志设置为（零），则该字段应为零且应被忽略。
+- **Pixel Aspect Ratio**: `像素纵横比` 用于计算原始图像中像素纵横比的近似值的因子。 如果该字段的值不为 0，则此纵横比的近似值将根据以下公式计算：纵横比 = (像素纵横比 + 15) / 64,像素纵横比定义为像素宽度与其高度的商。 此字段中的值范围允许以 1/64 为增量指定 4:1 的最宽像素到 1:4 的最高像素。 0 - 没有给出纵横比信息。1~255 - 计算中使用的值。
+
+4. **代码实现**：是不是大家最喜欢还是看代码
+
+```ts
+// 逻辑屏幕描述符 - 部分代码
+export class LogicalScreenDescriptor {
+  private width: number = 0
+  private height: number = 0
+  // 填充字段
+  private packedFields: Array<number> = []
+  private globalColorTableFlag: number = 0
+  private colorResolution: number = 0
+  private sortFlag: number = 0
+  private globalColorTableSize: number = 0
+  private backgroundColorIndex: number = 0
+  private pixelAspectRatio: number = 0
+  constructor(private stream: Stream) {
+    this.stream = stream
+  }
+
+  parse() {
+    this.width = this.stream.readUint16()
+    this.height = this.stream.readUint16()
+    this.packedFields = byteToBits(this.stream.readUint8())
+    const bits: Array<number> = [...this.packedFields]
+    // 1 - 全局颜色表标志
+    this.globalColorTableFlag = bits.shift() || 0
+    // 3 - 颜色分辨率
+    this.colorResolution = bitsToNumber(bits.splice(0, 3)) + 1
+    // 5 - 排序标志
+    this.sortFlag = bits.shift() || 0
+    // 7 - 全局颜色表的大小
+    this.globalColorTableSize = bitsToNumber(bits.splice(0, 3))
+    this.handlerPackedField(this.packedFields)
+    this.backgroundColorIndex = this.stream.readUint8()
+    this.pixelAspectRatio = this.stream.readInt8()
+  }
+
+  // 后面需要用
+  hasGlobalColorTable(): boolean {
+    return !!this.globalColorTableFlag
+  }
+
+  // 后面需要用
+  getGlobalColorTableSize() {
+    return this.globalColorTableSize
+  }
+}
+```
+
+> 点击前往github查看[LogicalScreenDescriptor](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/logicalScreenDescriptor.ts)类实现细节。
+
+#### 3、全局颜色表/局部颜色表 - GlobalColorTable/LocalColorTable
+
+1. **描述**： 该块包含一个颜色表，它是代表红-绿-蓝三元组的字节序列。 没有局部颜色表的图像和纯文本扩展使用全局颜色表。 它的存在由逻辑屏幕描述符中的全局颜色表标志设置为 1 来标记； 如果存在，它紧跟逻辑屏幕描述符并包含等于 3 x 2^（全局颜色表的大小+1）的字节数。这个块是可选的； 每个数据流最多可以存在一个全局颜色表。
+2. **所需版本**：87a
+3. **句法**：
+   ![gif-Page-GlobalColorTable.drawio.png](/static/images/gif-parser/gif-parser-09.webp)
+
+4. **扩展和范围**： 该块的范围是整个数据流。 该块不能被任何扩展修改。
+5. **代码实现**：获取全局颜色表的大小s, s + 1, 1 &lt;&lt; s + 1
+
+```ts
+export class ColorTable {
+  private colors: ColorTableData = []
+  constructor(private stream: Stream) {
+    this.stream = stream
+  }
+
+  parse({ size = 0 }: ParseParam) {
+    // 等于 3 x 2^（全局颜色表的大小+1）的字节数。
+    const colorTableSize = 1 << (size + 1)
+    for (let i = 0; i < colorTableSize; i++) {
+      this.colors.push(this.stream.readUint8Array(3))
+    }
+  }
+}
+```
+
+#### 4、图形控制扩展 - GraphicControlExtension
+
+1. **描述**：图形控制扩展包含处理图形渲染块时使用的参数。 此扩展的范围是要遵循的第一个图形渲染块。 扩展只包含一个数据子块。这个块是可选的； 最多一个图形控制扩展可以在图形渲染块之前。 这是对可能包含在数据流中的图形控制扩展数量的唯一限制。
+2. **所需版本**：89a.
+3. **句法**：
+   ![gif-Page-GraphicControlExtension.drawio.png](/static/images/gif-parser/gif-parser-10.webp)
+
+- **Extension Introducer**: `扩展导入符`，标识扩展块的开始。该字段包含固定值 `0x21`。
+- **Graphic Control Label**：`图形控制标签`，将当前块标识为图形控制扩展。该字段包含固定值 `0xF9`。
+- **Block Size**：`块大小`，块中的字节数，在块大小字段之后，直到但不包括块终止符。该字段包含固定值 `4`。
+- **Disposal Method**：`处理方法`，表示图形在显示后的处理方式。
+  - **0** - `未指定处置`，解码器不需要采取任何行动。
+  - **1** - `不要处理`，图形将留在原处。
+  - **2** - `恢复到背景颜色`，图形使用的区域必须恢复为背景色。
+  - **3** - `恢复到以前`，解码器需要用渲染图形之前的内容恢复被图形覆盖的区域。
+  - **4-7** - `待定义`。
+- **User Input Flag**：`用户输入标志` - 指示在继续之前是否需要用户输入。如果设置了该标志，则在输入用户输入时将继续处理。用户输入的性质由应用程序决定（回车、鼠标按钮点击等）。
+  - **0** - 不需要用户输入。
+  - **1** - 需要用户输入。
+    当使用延迟时间并且设置了用户输入标志时，处理将在接收到用户输入或延迟时间到期时继续进行，以先发生者为准。
+- **Transparency Flag**：`透明标志`——指示是否在透明索引字段中给出了透明索引。 （该字段是字节的最低有效位。）
+  - 0 - 未给出透明索引。
+  - 1 - 给出了透明索引。
+- **Delay Time**：`延迟时间`——如果不是 0，该字段指定在继续处理数据流之前等待的百分之一 **(1/100)** 秒。渲染图形后，时钟立即开始滴答作响。该字段可以与用户输入标志字段结合使用。
+- **Transparency Index**：`透明度指数`，透明度指数是这样的，当遇到时，显示设备的相应像素不被修改并且处理继续到下一个像素。当且仅当 Transparency Flag 设置为 1 时，索引才存在。
+- **Block Terminator**：`块终止符`——这个零长度的数据块标志着图形控制扩展的结束。
+
+4. **扩展和范围**: 该块的范围是整个数据流。 该块不能被任何扩展修改。
+5. **代码实现**:
+
+```ts
+export class GraphicsControlExtension extends BaseExtension {
+  private introducer: string = ''
+  private label: string = ''
+  private blockSize: number = 0
+  private packedFields: Array<number> = []
+  private reserved: Array<number> = []
+  private disposalMethod: number = 0
+  private userInputFlag: number = 0
+  private transparentColorFlag: number = 0
+  private delayTime: number = 0
+  private transparentColorIndex: number = 0
+  private blockTerminator: string = ''
+
+  constructor(private stream: Stream) {
+    this.stream = stream
+  }
+
+  parse({ introducer = 0, label = 0 }: ParseParam): void {
+    this.introducer = String.fromCharCode(introducer)
+    this.label = numberToHex(label)
+
+    this.blockSize = this.stream.readUint8()
+    this.packedFields = byteToBits(this.stream.readUint8())
+    const bits = [...this.packedFields]
+    this.reserved = bits.splice(0, 3) // 预留
+    this.disposalMethod = bitsToNumber(bits.splice(0, 3))
+    this.userInputFlag = bits.shift() || 0
+    this.transparentColorFlag = bits.shift() || 0
+    this.delayTime = this.stream.readUint16()
+    this.transparentColorIndex = this.stream.readUint8()
+
+    this.blockTerminator = this.stream.readString(1)
+  }
+}
+```
+
+> 点击前往github查看[GraphicsControlExtension](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/graphicsControlExtension.ts)类实现细节。
+
+5. **建议**：
+
+- **User Input Flag**：`处理方法`，恢复到以前的模式旨在用于图形的小部分；这种模式的使用对解码器提出了严格的要求来存储需要保存的图形部分。因此，应谨慎使用此模式。此模式不是为了保存整个图形或图形的大面积；在这种情况下，编码器应尽一切努力使要恢复的图形部分成为数据流中的独立图形。如果解码器无法保存标记为“恢复到上一个​​”的图形区域，建议解码器恢复到背景颜色。
+- **Disposal Method**：`用户输入标志`，当标志被设置时，表明需要用户输入，解码器可以响铃 (0x07) 以提醒用户正在等待输入。在没有指定延迟时间的情况下，解码器应该无限期地等待用户输入。建议编码器不要在没有指定延迟时间的情况下设置用户输入标志。
+
+#### 5、应用扩展 - Application Extension
+
+1. **描述**： 应用程序扩展包含特定于应用程序的信息； 它符合扩展块语法，如下所述，其块标签为 0xFF。
+2. **所需版本**：89a.
+3. **句法**：
+
+![gif-Page-ApplicationExtension.drawio.png](/static/images/gif-parser/gif-parser-11.webp)
+
+- **Extension Introducer**：`扩展导入符`，将此块定义为扩展。该字段包含固定值 `0x21`。
+- **Application Extension Label**：`应用扩展标签`——将块标识为应用扩展。该字段包含固定值 `0xFF`。
+- **Block Size**：`块大小`，此扩展块中的字节数，跟随块大小字段，直到但不包括应用数据的开头。该字段包含固定值 `11`。
+- **Application Identifier**：`应用程序标识符`，用于识别拥有应用程序扩展的应用程序的八个可打印 ASCII 字符序列。
+- **Application Authentication Code**：`应用验证码`——用于验证应用标识符的三个字节序列。应用程序可以使用算法来计算二进制代码，该代码唯一地将其标识为拥有应用程序扩展的应用程序。
+
+4. **扩展和范围**：该块没有作用域。 这块不能被任何扩展修改。
+5. **代码实现**：
+
+```ts
+export class ApplicationExtension {
+  private introducer: string = ''
+  private label: string = ''
+  private blockSize: number = 0
+  private identifier: string = ''
+  private authenticationCode: string = ''
+  private appData: AppData
+
+  private netscapeExtension: NetscapeExtension
+  private xmpdataExtension: XMPDataExtension
+  private unknownApplicationExtension: UnknownApplicationExtension
+
+  constructor(private stream: Stream) {
+    super(stream)
+    this.netscapeExtension = new NetscapeExtension(stream)
+    this.xmpdataExtension = new XMPDataExtension(stream)
+    this.unknownApplicationExtension = new UnknownApplicationExtension(stream)
+    this.appData = {} as AppData
+  }
+
+  parse({ introducer = 0, label = 0 }: ParseParam): void {
+    this.introducer = String.fromCharCode(introducer)
+    this.label = numberToHex(label)
+    this.blockSize = this.stream.readInt8() // Always 11
+    this.identifier = this.stream.readString(8)
+    this.authenticationCode = this.stream.readString(3)
+    if (this.identifier === 'NETSCAPE') {
+      this.netscapeExtension.parse({ introducer, label })
+      this.appData = this.netscapeExtension.export()
+    } else if (this.identifier === 'XMP Data') {
+      this.xmpdataExtension.parse({ introducer, label })
+      this.appData = this.xmpdataExtension.export()
+    } else {
+      this.unknownApplicationExtension.parse({ introducer, label })
+      this.appData = this.unknownApplicationExtension.export()
+    }
+  }
+}
+```
+
+> 点击前往github查看[ApplicationExtension](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/applicationExtension.ts)类实现细节。
+
+#### 6、图像描述符- Image Descriptor
+
+1. **描述**：数据流中的每个图像都由图像描述符、可选的局部颜色表和图像数据组成。 每个图像必须适合逻辑屏幕的边界，如逻辑屏幕描述符中所定义。图像描述符包含处理基于表格的图像所需的参数。 此块中给出的坐标是指逻辑屏幕内的坐标，以像素为单位。 该块是一个Graphic-Rendering Block，可选地前面有一个或多个控制块，例如`Graphic Control Extension`，后面可以选择跟一个`Local Color Table`； 图像描述符总是跟随着图像数据。图像需要此块。 数据流中的每个图像必须存在一个图像描述符。 每个数据流可以存在无限数量的图像。
+2. **所需版本**：87a.
+3. **句法**：
+
+![gif-Page-ImageDescriptor.drawio.png](/static/images/gif-parser/gif-parser-12.webp)
+
+- **Image Separator**：`图像分隔符` - 标识图像描述符的开头。该字段包含固定值 `0x2C`。
+- **Image Left Position**：`图像左位置` - 图像左边缘相对于逻辑屏幕左边缘的列号（以像素为单位）。逻辑屏幕最左边的列是 `0`。
+- **Image Top Position**：`图像顶部位置`，图像顶部边缘相对于逻辑屏幕顶部边缘的行数（以像素为单位）。逻辑屏幕的顶行是 `0`。
+- **Image Width**：`图像宽度` - 以像素为单位。
+- **Image Height**：`图像高度` - 以像素为单位。
+- **Local Color Table Flag**：`局部颜色表标志` ——指示紧跟在该图像描述符之后的局部颜色表的存在。 （该字段是字节的最高有效位。）
+  - **0** - 本地颜色表不存在。用全局颜色表（如果可用）。
+  - **1** - 本地颜色表存在，并遵循紧跟在此图像描述符之后。
+- **Interlace Flag**：`隔行标志` - 指示图像是否是隔行的。图像以四遍交错模式交错。
+  - **0** - 图像不隔行扫描。
+  - **1** - 图像交错。
+- **Sort Flag**：`排序标志` - 指示本地颜色表是否已排序。如果设置了该标志，则按重要性递减的顺序对本地颜色表进行排序。通常，顺序是频率递减，最常见的颜色在前。这有助于具有较少可用颜色的解码器选择最佳颜色子集；解码器可以使用表格的初始段来呈现图形。
+  - **0** - 未订购。
+  - **1** - 按重要性递减排序，最重要的颜色在前。
+- **Size of Local Color Table**：`局部颜色表的大小` - 如果局部颜色表标志设置为`1`，则该字段中的值用于计算局部颜色表中包含的字节数。要确定颜色表的实际大小，请将 `2` 提高到该字段的值 `+ 1`。如果未指定本地颜色表，则该值应为 `0`。 （该字段由字节的 `3 个`最低有效位组成。）
+
+5. **扩展和范围**：该块的范围是它后面的基于表的图像数据块。这个块可以被Graphic修改
+6. **代码实现**：
+
+```ts
+export class ImageDescriptor {
+  private introducer: string = ''
+  private left: number = 0
+  private top: number = 0
+  private width: number = 0
+  private height: number = 0
+
+  private packedFields: Array<number> = []
+  private localColorTableFlag: number = 0
+  private interlaceFlag: number = 0
+  private sortFlag: number = 0
+  private reserved: Array<number> = []
+  private localColorTableSize: number = 0
+
+  constructor(private stream: Stream) {
+    this.stream = stream
+  }
+
+  hasLocalColorTable(): boolean {
+    return !!this.localColorTableFlag
+  }
+
+  getLocalColorTableSize(): number {
+    return this.localColorTableSize
+  }
+
+  parse({ introducer = 0 }: ParseParam): void {
+    this.introducer = String.fromCharCode(introducer)
+
+    this.left = this.stream.readUint16()
+    this.top = this.stream.readUint16()
+    this.width = this.stream.readUint16()
+    this.height = this.stream.readUint16()
+
+    this.packedFields = byteToBits(this.stream.readUint8())
+    const bits = [...this.packedFields]
+    this.localColorTableFlag = bits.shift() || 0
+    this.interlaceFlag = bits.shift() || 0
+    this.sortFlag = bits.shift() || 0
+    this.reserved = bits.splice(0, 2)
+    this.localColorTableSize = bitsToNumber(bits.splice(0, 3))
+  }
+}
+```
+
+> 点击前往github查看[ImageDescriptor](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/imageDescriptor.ts)类实现细节。
+
+#### 7、基于表格的图像数据 - Table Based Image Data
+
+1. **描述**：基于表的图像的图像数据由一系列子块组成，每个子块的大小最多为 255 字节，包含对图像中每个像素的活动颜色表的索引。 像素索引按从左到右和从上到下的顺序排列。 每个索引必须在活动颜色表的大小范围内，从 0 开始。 索引序列使用具有可变长度代码的 `LZW` 算法进行编码，如附录 F 中所述
+2. **所需版本**：87a.
+3. **句法**：图像数据格式如下
+
+![gif-Page-ImageData.drawio.png](/static/images/gif-parser/gif-parser-13.webp)
+
+- **LZW Minimum Code Size**：`LZW 最小代码大小` - 该字节确定用于图像数据中 `LZW` 代码的初始位数，如附录 F 中所述。
+- **Image Data**：图片数据 - 看下面 `Data Sub-blocks` 规则。
+
+4. **代码实现**：
+
+```ts
+export class ImageData {
+    private lzwMinimumCodeSize: number = 0;
+    private blocks: blocks: Array<{
+            offset: number,
+            length: number}> = [];
+
+    constructor(private stream: Stream, private subBlocks: SubBlocks) {
+        this.stream = stream;
+        this.subBlocks = new subBlocks(stream);
+    }
+
+    parse() {
+        this.lzwMinimumCodeSize = this.stream.readUint8();
+        // 看 -> 8、数据子块 - Data Sub-blocks，也就是 LZW 数据
+        this.subBlocks.parse()
+        this.blocks = this.subBlocks.readSubBlocks();
+    }
+}
+```
+
+> 点击前往github查看[ImageData](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/imageData.ts)类实现细节。
+
+5. **扩展和范围**：该块没有范围，它包含栅格数据。 用于修改基于表格的图像的扩展必须出现在相应的图像描述符之前。
+6. **如附录 F 中所述**：这是[官方文档](http://www.w3.org/Graphics/GIF/spec-gif89a.txt)介绍 `LZW`规则，比较复杂，下次单独介绍。
+
+#### 8、数据子块 - Data Sub-blocks
+
+1. **描述**： 数据子块是包含数据的单元。 它们没有标签，这些块在控制块的上下文中处理，无论数据块在格式中指定在哪里。 数据子块的第一个字节表示要跟随的数据字节数。 一个数据子块可以包含 0 到 255 个数据字节。 块的大小不考虑大小字节本身，因此，空子块是大小字段包含0x00的子块。
+2. **所需版本**：87a.
+3. **句法**：
+   ![gif-Page-DataSub-blocks.drawio.png](/static/images/gif-parser/gif-parser-14.webp)
+
+- **Block Size**：`块大小` - 数据子块中的字节数；大小必须在 0 和 255 字节之间，包括 0 和 255 字节。
+- **Data Values**：`数据值` - 任何 8 位值。 数据值的数量必须与块大小字段指定的数量完全一样。
+
+4. **代码实现**：
+
+```ts
+export class SubBlocks {
+    private blocks: blocks: Array<{
+            offset: number,
+            length: number}> = [];
+    private length: number = 0；
+
+    constructor(private stream: Stream) {
+        this.stream = stream;
+    }
+
+    parse() {
+        const offset = this.stream.getOffset();
+        let blockSize = this.stream.readUint8();
+        let length = 1;
+        const blocks: Array<{
+            offset: number,
+            length: number
+        }> = [];
+        while(blockSize > 0) {
+            blocks.push({ offset: offset + length, length: blockSize });
+            length += blockSize + 1;
+            this.stream.seek(blockSize);
+            blockSize = this.stream.readUint8();
+        }
+        length += 1;
+
+        this.blocks = blocks;
+        this.length = length;
+    }
+
+    readSubBlocks() {
+        return this.blocks;
+    }
+}
+```
+
+5. **扩展和范围**：这种类型的块总是作为较大单元的一部分出现。 它没有自己的范围。
+
+### 五、gif-parser关键逻辑实现
+
+1. 关键逻辑流程图
+   ![gif-Page-12.drawio.png](/static/images/gif-parser/gif-parser-15.webp)
+2. 代码实现
+
+```ts
+export class Parser {
+  private parsed: boolean
+  private stream: Stream
+  private header: Header
+  private logicalScreenDescriptor: LogicalScreenDescriptor
+  private globalColorTable: GlobalColorTable
+  private graphicsControlExtension: GraphicsControlExtension
+  private plainTextExtension: PlainTextExtension
+  private commentExtension: CommentExtension
+  private applicationExtension: ApplicationExtension
+  private unknownExtension: UnknownExtension
+  private imageDescriptor: ImageDescriptor
+  private imageData: ImageData
+
+  constructor(arrayBuffer: ArrayBuffer) {
+    console.log('GifParser init')
+    this.parsed = false
+    this.stream = new Stream(arrayBuffer, true)
+    this.header = new Header(this.stream)
+    this.logicalScreenDescriptor = new LogicalScreenDescriptor(this.stream)
+    this.globalColorTable = new GlobalColorTable(this.stream)
+    this.graphicsControlExtension = new GraphicsControlExtension(stream)
+    this.commentExtension = new CommentExtension(stream)
+    this.plainTextExtension = new PlainTextExtension(stream)
+    this.applicationExtension = new ApplicationExtension(stream)
+    this.unknownExtension = new UnknownExtension(stream)
+    this.imageDescriptor = new ImageDescriptor(stream)
+    this.imageData = new ImageData(stream)
+    this.parse()
+  }
+
+  private parse(): void {
+    if (this.parsed) {
+      return
+    }
+    // 解析 文件头
+    this.header.parse()
+    // 解析 逻辑屏幕描述符
+    this.logicalScreenDescriptor.parse()
+    if (this.logicalScreenDescriptor.hasGlobalColorTable()) {
+      const size = this.logicalScreenDescriptor.getGlobalColorTableSize()
+      // 解析 全局颜色表
+      this.globalColorTable.parse({ size })
+    }
+
+    // 是否还有数据
+    while (this.stream.hasMore()) {
+      // 导入符，解析开始表示符，“!”、“,”、“;”
+      const introducer = this.stream.readUint8()
+      // 如果是“!”，对应的是扩展
+      if (String.fromCharCode(introducer) === '!') {
+        // 扩展类型，label：0xF9、0xFE、0x01、0xFF
+        const label = this.stream.readUint8()
+        // 0xF9：解析 图形控制扩展
+        if (label === 0xf9) this.graphicsControlExtension.parse({ introducer, label })
+        // 0xFE：解析 评论扩展
+        else if (label === 0xfe) this.commentExtension.parse({ introducer, label })
+        // 0x01：解析 纯文本扩展
+        else if (label === 0x01) this.plainTextExtension.parse({ introducer, label })
+        // 0xFF：解析 应用扩展
+        else if (label === 0xff) this.applicationExtension.parse({ introducer, label })
+        // 解析 不其它不知道扩展
+        else this.unknownExtension.parse({ introducer, label })
+      }
+      // 如果是“,”，对应的图片
+      else if (String.fromCharCode(introducer) === ',') {
+        // 解析 图像描述符
+        this.imageDescriptor.parse({ introducer })
+        if (this.imageDescriptor.hasLocalColorTable()) {
+          const size = this.imageDescriptor.getLocalColorTableSize()
+          // 解析 局部颜色表
+          this.localColorTable.parse({ size })
+          // 解析 图片数据
+          this.imageData.parse()
+        }
+      }
+      // 如果是“;”，对应的结束
+      else if (String.fromCharCode(introducer) === ';') {
+        console.log('end block')
+      }
+      // 用0填充这个
+      else {
+        throw new Error('Unknown block: 0x' + introducer.toString(16))
+      }
+    }
+
+    this.parsed = true
+  }
+}
+```
+
+> 点击前往github查看[Parser](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parser.ts)类实现细节。
+
+3. 解码器效果
+   ![gif-parser.png](/static/images/gif-parser/gif-parser-16.webp)
+
+4. gif-parser已发布npm上，可以安装使用
+
+- 安装
+
+```bash
+npm i @n.see/gif-parser --save
+```
+
+- 使用
+
+```js
+import { onMounted } from 'vue'
+import { Parser } from '@n.see/gif-parser'
+
+onMounted(() => {
+  fetch('/src/assets/03.gif')
+    .then((resp) => resp.arrayBuffer())
+    .then((arrayBuffer) => {
+      // 解析gif文件流
+      const parser = new Parser(arrayBuffer)
+      // gif高宽
+      const [width, height] = parser.getSize()
+      // 导出数据
+      parser.export()
+      // 获取数据
+      const dataList = parser.getDataList()
+    })
+})
+```
+
+5. github
+
+- demo：[gif](https://github.com/nseeart/gif)
+- 解析器：[git-parser](https://github.com/nseeart/gif/blob/main/packages/gif-parser)
+- 播放器：[gif-player](https://github.com/nseeart/gif/blob/main/packages/gif-player)（原生js）
+- 播放器：[gif-player-vue-next](https://github.com/nseeart/gif/blob/main/packages/gif-player-vue-next)（vue-next组件）
+
+### 六、参考资料
+
+- [W3C GIF89a specification](http://www.w3.org/Graphics/GIF/spec-gif89a.txt)
+- [What's In A GIF](http://www.matthewflickinger.com/lab/whatsinagif)
+- [Bit depth and color depth](http://www.devx.com/projectcool/Article/19997/0/page/7)

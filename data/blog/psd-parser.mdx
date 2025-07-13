@@ -1,0 +1,130 @@
+---
+title: '[psd-parser]如何实现自己的蓝湖（UI设计图标注）'
+date: '2022-12-23'
+tags: ['psd', 'psd-parser', '蓝湖', 'parser', '设计图标注', 'node', 'js']
+draft: false
+summary: 大家好，最近喜欢上文件流，对它很好奇，如psdjs解析.psd文件、xgplayerjs视频解码等，原理都类似。已完成gif解析原理：[gif-parser]带你如何用js读取gif图片数据流，解码gif历经一年多，再次挑战.psd文件解析，使用es6重构psd.js。
+---
+
+### 一、前言
+
+大家好，最近喜欢上文件流，对它很好奇，如`psdjs解析.psd文件`、`xgplayerjs视频解码`等，原理都类似。
+
+已完成gif解析原理：[[gif-parser]带你如何用js读取gif图片数据流，解码gif](https://juejin.cn/post/7022637452066029599)
+
+历经一年多，再次挑战.psd文件解析，使用es6重构psd.js。
+
+### 二、实现自己的蓝湖（UI设计图标注系统）
+
+#### 1、废话少说，先上图
+
+![image.png](/static/images/psd-parser/psd-parser-01.webp)
+
+#### 2、实现设计图标注过程
+
+> 要实现设计图（.psd文件）标注能力，首先要解析psd文件成json数据。
+
+1、目前有很多成熟的方案
+
+- [psd.rb](https://github.com/layervault/psd.rb)：Ruby 版，对我们前端不太友好。
+- [psd.js](https://github.com/meltingice/psd.js)：Coffeescript 版，这也是基于`psd.rb`实现的。
+- [psd](https://github.com/webtoon/psd)：typescript 版，相对psd.js 轻量、速度快、但功能不全。
+
+所以我们就选了psd.js来解析psd文件。
+
+2、选好方案，就开始实现。
+
+- 使用psd.js解析json
+
+上代码：
+
+```js
+import PSD from 'psd.js'
+const tree = psd.tree()
+const json = tree.export()
+console.log(json)
+```
+
+数据解析成功，太高兴了，离成功近了一大步。
+![image.png](/static/images/psd-parser/psd-parser-02.webp)
+
+3、设计图与解析json数据对比
+
+按钮：ui设计图
+![image.png](/static/images/psd-parser/psd-parser-03.webp)
+ps：ps图层信息
+
+![image.png](/static/images/psd-parser/psd-parser-04.webp)
+
+- 文件夹（确认按钮）
+  - 文字（确认）
+  - 图形（按钮背景）
+
+![image.png](/static/images/psd-parser/psd-parser-05.webp)
+
+![image.png](/static/images/psd-parser/psd-parser-06.webp)
+
+![image.png](/static/images/psd-parser/psd-parser-07.webp)
+
+> 仔细对比，文件夹、文字、图形的的解析信息，文件夹、文字满足需求，但是图形信息不全。达不到前端标注写css的要求。
+
+4、有问题解决问题
+
+查文档：`node.toPng()`, 图形转图片；`node.get('vectorMask').export()`, 可以获取图形信息，但是图形坐标点。
+
+![image.png](/static/images/psd-parser/psd-parser-08.webp)
+
+通过转换可以得到svg path d 的数据，坐标点（anchor、leaving、preceding）细节介绍，掘金上已有，我就不重复。如要细细学习，请移步 [使用psd.js将PSD转成SVG -- 基础篇（图形）](https://juejin.cn/post/6844903983522250765)。
+
+5、扩展psd.js的能力
+
+当要fork [psd.js](https://github.com/meltingice/psd.js) 时，发现它是用传说中的 `Coffeescript` 编写。现在Coffeescript好像要凉，用的人很少，自己也不想学它（有点浪费时间），那咋办呢？放弃吗！放弃是不可能的。
+
+我们前端童鞋的价值是啥？兄弟们！重构！重构！重构！一言不和就重构，维护不了就重构，只就是我们前端的价值，有赞同没？
+
+用es6重构`Coffeescript` 编写 `psd.js`, 文件有点多，60多给.coffee 文件。
+
+![image.png](/static/images/psd-parser/psd-parser-09.webp)
+
+重构前的.coffee：
+![image.png](/static/images/psd-parser/psd-parser-10.webp)
+
+重构后的es6:
+![image.png](/static/images/psd-parser/psd-parser-11.webp)
+
+> 重构前后对比，还是喜欢我们熟悉的es6，npm包名 `@n.see/psd-parser`，https://github.com/nseeart/psd
+
+6、`@n.see/psd-parser` > `psd.js`
+
+- 覆盖所有功能`psd.js`
+- **新增图形svg路线d、图形类型、图形圆角、 图形边框信息、图形背景信息等。**
+
+![image.png](/static/images/psd-parser/psd-parser-12.webp)
+![image.png](/static/images/psd-parser/psd-parser-13.webp)
+
+#### 3、完成核心功能
+
+1、.psd 解析json
+
+2、标注面板的标注辅助能力
+![image.png](/static/images/psd-parser/psd-parser-14.webp)
+
+3、图层信息与样式展示
+
+![image.png](/static/images/psd-parser/psd-parser-05.webp)
+
+> 所有代码已开源 [psd-measure](https://github.com/nseeart/psd/tree/main/packages/psd-measure)
+
+![psd-measure.png](/static/images/psd-parser/psd-parser-16.webp)
+
+### 三、总结
+
+本篇幅没有多少代码，是因为代码太多了，如果要实现psd-parser过程可能要出连续剧才行。
+
+不说了，多说都是泪，不知有没有人点赞、star。
+
+### 四、代码
+
+- github地址： https://github.com/nseeart/psd
+- 解析器：[psd-parser](https://github.com/nseeart/psd/tree/main/packages/psd-parser)
+- 设计图标注面板: [psd-measure](https://github.com/nseeart/psd/tree/main/packages/psd-measure)

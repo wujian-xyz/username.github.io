@@ -11,7 +11,8 @@
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
     "prepare": "husky",
-    "deploy": "gh-pages -d out"
+    "deploy": "gh-pages -d out",
+    "static:serve": "serve out"
   },
   "dependencies": {
     "@headlessui/react": "2.2.0",
@@ -68,6 +69,7 @@
     "lint-staged": "^13.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "serve": "latest",
     "typescript": "^5.1.3"
   },
   "lint-staged": {

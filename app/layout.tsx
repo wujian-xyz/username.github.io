@@ -7,7 +7,6 @@ import { Space_Grotesk } from 'next/font/google'
 import { Analytics, AnalyticsConfig } from 'pliny/analytics'
 import { SearchProvider, SearchConfig } from 'pliny/search'
 import Header from '@/components/Header'
-// import SectionContainer from '@/components/SectionContainer'
 import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
@@ -51,11 +50,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  twitter: {
-    title: siteMetadata.title,
-    card: 'summary_large_image',
-    images: [siteMetadata.socialBanner],
   },
 }
 
@@ -101,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
             <Header />
-            <main className="mx-auto mt-1 max-w-2xl overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <main className="mx-auto mt-1 max-w-2xl overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
               {children}
             </main>
           </SearchProvider>

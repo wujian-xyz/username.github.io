@@ -17,7 +17,7 @@ export default function AuthorLayout({ children, content }: Props) {
       <div className="w-full">
         <CardTitle title="关于" />
         <div className="items-start space-y-2 px-9 sm:grid sm:grid-cols-3 sm:gap-x-8 sm:space-y-0">
-          <div className="flex flex-col items-center space-x-2 pt-8">
+          <div className="flex flex-col items-center space-x-2 py-8">
             {avatar && (
               <Image
                 src={avatar}

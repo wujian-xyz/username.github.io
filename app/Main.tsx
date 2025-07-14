@@ -1,9 +1,9 @@
 import Link from '@/components/Link'
 import siteMetadata from '@/data/siteMetadata'
-import NewsletterForm from 'pliny/ui/NewsletterForm'
 import CardTitle from '@/components/CardTitle'
 import { ArrowRight, CalendarSync } from 'lucide-react'
 import PostItem from '@/components/PostItem'
+import SocialIcon from '@/components/social-icons'
 
 const MAX_DISPLAY = 5
 
@@ -40,11 +40,15 @@ export default function Home({ posts }) {
           </Link>
         </div>
       )}
-      {siteMetadata.newsletter?.provider && (
-        <div className="flex items-center justify-center border-t border-violet-100 bg-gray-50 px-9 py-6 dark:border-gray-700 dark:bg-gray-900/50">
-          <NewsletterForm />
+
+      <div className="flex items-center justify-center border-t border-violet-100 bg-gray-50 px-9 py-6 dark:border-gray-700 dark:bg-gray-900/50">
+        <div className="flex space-x-4">
+          <SocialIcon kind="mail" href={`mailto:${siteMetadata.email}`} size={6} />
+          <SocialIcon kind="github" href={siteMetadata.github} size={6} />
+          <SocialIcon kind="juejin" href={siteMetadata.juejin} size={6} />
+          {/* <SocialIcon kind="medium" href={siteMetadata.medium} size={6} /> */}
         </div>
-      )}
+      </div>
     </>
   )
 }

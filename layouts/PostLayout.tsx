@@ -9,6 +9,7 @@ import Image from '@/components/Image'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
+import { ArrowLeft } from 'lucide-react'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
 const discussUrl = (path) =>
@@ -65,10 +66,10 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                       {author.avatar && (
                         <Image
                           src={author.avatar}
-                          width={38}
-                          height={38}
-                          alt="avatar"
-                          className="h-10 w-10 rounded-full"
+                          width={32}
+                          height={32}
+                          alt="头像"
+                          className="size-8 rounded-full object-cover"
                         />
                       )}
                       <dl className="text-sm leading-5 font-medium whitespace-nowrap">
@@ -153,10 +154,11 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
               <div className="pt-4 xl:pt-8">
                 <Link
                   href={`/${basePath}`}
-                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                  aria-label="Back to the blog"
+                  className="hover:text-primary-600 dark:hover:text-primary-400 flex items-center text-sm text-gray-500"
+                  aria-label="返回列表"
                 >
-                  &larr; Back to the blog
+                  <ArrowLeft size={16} />
+                  <span>返回列表</span>
                 </Link>
               </div>
             </footer>

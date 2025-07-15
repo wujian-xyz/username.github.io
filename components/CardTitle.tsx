@@ -15,7 +15,7 @@ const CardTitle = ({ children, title, icon }: Props) => {
             {icon}
           </span>
         )}
-        <h1 className="text-xl font-extrabold tracking-tight text-gray-900 sm:leading-10 dark:text-gray-100">
+        <h1 className="text-xl font-extrabold tracking-tight text-gray-600 sm:leading-10 dark:text-gray-100">
           {title}
         </h1>
       </header>

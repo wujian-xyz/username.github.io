@@ -3,6 +3,7 @@ import type { Authors } from 'contentlayer/generated'
 import SocialIcon from '@/components/social-icons'
 import Image from '@/components/Image'
 import CardTitle from '@/components/CardTitle'
+import { AtSign } from 'lucide-react'
 
 interface Props {
   children: ReactNode
@@ -15,7 +16,7 @@ export default function AuthorLayout({ children, content }: Props) {
   return (
     <>
       <div className="w-full">
-        <CardTitle title="关于" />
+        <CardTitle title="关于" icon={<AtSign size={22} />} />
         <div className="items-start space-y-2 px-9 sm:grid sm:grid-cols-3 sm:gap-x-8 sm:space-y-0">
           <div className="flex flex-col items-center space-x-2 py-8">
             {avatar && (

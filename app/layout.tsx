@@ -11,6 +11,7 @@ import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
+import Script from 'next/script'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -101,6 +102,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </SearchProvider>
           <Footer />
         </ThemeProviders>
+        <Script
+          id="show-hm"
+          dangerouslySetInnerHTML={{
+            __html: `var _hmt = _hmt || [];
+                (function() {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?fd1e70fb69a56d4ad42eca06b04e5ad5";
+                var s = document.getElementsByTagName("script")[0]; 
+                s.parentNode.insertBefore(hm, s);
+                })();
+            `,
+          }}
+        />
       </body>
     </html>
   )

@@ -1,5 +1,4 @@
 import { Mail, Github, Juejin, Medium } from './icons'
-// import { Mail } from 'lucide-react'
 
 const components = {
   mail: Mail,

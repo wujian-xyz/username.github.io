@@ -7,20 +7,16 @@ interface Project {
 
 const projectsData: Project[] = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
-    imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
+    title: 'Gif Parser',
+    description: `Javascript 实现Gif图片文件流解析器（git-parser），gif图片播放器（gif-player）。`,
+    imgSrc: '/static/images/projects/gif-parser.jpeg',
+    href: 'https://github.com/wujian-xyz/gif',
   },
   {
-    title: 'The Time Machine',
-    description: `Imagine being able to travel back in time or to the future. Simple turn the knob
-    to the desired date and press "Go". No more worrying about lost keys or
-    forgotten headphones with this simple yet affordable solution.`,
-    imgSrc: '/static/images/time-machine.jpg',
-    href: '/blog/the-time-machine',
+    title: 'PSD Parser',
+    description: `这是一个基于ES6编写的通用PSD解析器，继承自PSD.rb和PSD.js项目。它能够将Photoshop文档转换为可操作的树状结构。`,
+    imgSrc: '/static/images/projects/psd-parser.jpeg',
+    href: 'https://github.com/wujian-xyz/psd',
   },
 ]
 

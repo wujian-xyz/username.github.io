@@ -1,0 +1,20 @@
+/* 整体滚动条 */
+.toc-menu::-webkit-scrollbar {
+  width: 4px; /* 滚动条宽度 */
+}
+
+/* 滚动条轨道 */
+.toc-menu::-webkit-scrollbar-track {
+  background: var(--color-violet-100); /* 轨道颜色 */
+}
+
+/* 滚动条手柄 */
+.toc-menu::-webkit-scrollbar-thumb {
+  background: var(--color-violet-200); /* 手柄颜色 */
+  border-radius: 2px; /* 手柄圆角 */
+}
+
+/* 滚动条手柄悬停 */
+.toc-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--color-violet-500); /* 手柄悬停颜色 */
+}

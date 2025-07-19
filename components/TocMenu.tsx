@@ -1,0 +1,54 @@
+'use client'
+import Link from 'next/link'
+import '@/css/toc-menu.css'
+
+interface TocMenuItem {
+  value: string
+  url: string
+  depth: number
+}
+
+interface Props {
+  menuList: TocMenuItem[]
+}
+
+function getFontSize(depth: number) {
+  switch (depth) {
+    case 1:
+    case 2:
+      return 'text-base'
+    case 3:
+    case 4:
+      return 'text-sm'
+    case 5:
+    case 6:
+      return 'text-xs'
+    default:
+      return 'text-sm'
+  }
+}
+
+export default function TocMenu({ menuList }: Props) {
+  return (
+    <div className={`fixed top-0 bottom-0 z-10 h-screen w-50 -translate-x-56 rounded-2xl py-16`}>
+      <ul className="toc-menu h-full w-full overflow-x-hidden px-4">
+        {menuList.map((item, key) => {
+          return (
+            <li key={key} className="py-1">
+              <Link
+                href={item.url}
+                className={
+                  'block truncate text-gray-600 hover:text-violet-600' +
+                  ' ' +
+                  getFontSize(item.depth)
+                }
+              >
+                {item.value}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}

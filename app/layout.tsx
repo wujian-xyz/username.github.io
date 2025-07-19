@@ -96,7 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
             <Header />
-            <main className="mx-auto mt-1 max-w-2xl overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
+            <main className="relative mx-auto mt-1 max-w-2xl rounded-2xl border border-violet-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
               {children}
             </main>
           </SearchProvider>

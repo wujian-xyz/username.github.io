@@ -12,30 +12,32 @@ import {
   Transition,
 } from '@headlessui/react'
 
-const Sun = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="group:hover:text-gray-100 h-6 w-6"
-  >
-    <path
-      fillRule="evenodd"
-      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-      clipRule="evenodd"
-    />
-  </svg>
-)
-const Moon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="group:hover:text-gray-100 h-6 w-6"
-  >
-    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-  </svg>
-)
+import { Sun, Moon, LaptopMinimal } from 'lucide-react'
+
+// const Sun = () => (
+//   <svg
+//     xmlns="http://www.w3.org/2000/svg"
+//     viewBox="0 0 20 20"
+//     fill="currentColor"
+//     className="group:hover:text-gray-100 h-6 w-6"
+//   >
+//     <path
+//       fillRule="evenodd"
+//       d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+//       clipRule="evenodd"
+//     />
+//   </svg>
+// )
+// const Moon = () => (
+//   <svg
+//     xmlns="http://www.w3.org/2000/svg"
+//     viewBox="0 0 20 20"
+//     fill="currentColor"
+//     className="group:hover:text-gray-100 h-6 w-6"
+//   >
+//     <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+//   </svg>
+// )
 const Monitor = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +68,15 @@ const ThemeSwitch = () => {
       <Menu as="div" className="relative inline-block text-left">
         <div className="hover:text-primary-500 dark:hover:text-primary-400 flex items-center justify-center">
           <MenuButton aria-label="Theme switcher">
-            {mounted ? resolvedTheme === 'dark' ? <Moon /> : <Sun /> : <Blank />}
+            {mounted ? (
+              resolvedTheme === 'dark' ? (
+                <Moon size={20} />
+              ) : (
+                <Sun size={20} />
+              )
+            ) : (
+              <Blank />
+            )}
           </MenuButton>
         </div>
         <Transition
@@ -78,7 +88,7 @@ const ThemeSwitch = () => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="ring-opacity-5 absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white ring-1 shadow-lg ring-violet-400 focus:outline-hidden dark:bg-gray-800">
+          <MenuItems className="ring-opacity-5 dark:bg-xyz-700 absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-lg bg-white ring-1 shadow-md ring-violet-300 focus:outline-hidden">
             <RadioGroup value={theme} onChange={setTheme}>
               <div className="p-1">
                 <Radio value="light">
@@ -88,9 +98,9 @@ const ThemeSwitch = () => {
                         className={`${focus ? 'bg-primary-600 text-white' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
-                          <Sun />
+                          <Sun size={20} />
                         </div>
-                        Light
+                        亮
                       </button>
                     )}
                   </MenuItem>
@@ -104,9 +114,9 @@ const ThemeSwitch = () => {
                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
-                          <Moon />
+                          <Moon size={20} />
                         </div>
-                        Dark
+                        黑
                       </button>
                     )}
                   </MenuItem>
@@ -120,9 +130,9 @@ const ThemeSwitch = () => {
                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
-                          <Monitor />
+                          <LaptopMinimal size={20} />
                         </div>
-                        System
+                        系统
                       </button>
                     )}
                   </MenuItem>

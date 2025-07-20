@@ -48,6 +48,14 @@
   --color-gray-900: oklch(0.21 0.034 264.665);
   --color-gray-950: oklch(0.13 0.028 261.692);
 
+  --color-xyz-700: #1b1b1f;
+  --color-xyz-800: #161618;
+  --color-xyz-900: #131316;
+
+  --color-xyz-100: #dfdfd6;
+  --color-xyz-200: #98989f;
+  --color-xyz-300: #6a6a71;
+
   /* Line heights */
   --line-height-11: 2.75rem;
   --line-height-12: 3rem;

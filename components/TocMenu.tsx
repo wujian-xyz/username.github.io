@@ -30,7 +30,9 @@ function getFontSize(depth: number) {
 
 export default function TocMenu({ menuList }: Props) {
   return (
-    <div className={`fixed top-0 bottom-0 z-10 h-screen w-50 -translate-x-56 rounded-2xl py-16`}>
+    <div
+      className={`fixed top-0 bottom-0 z-10 hidden h-screen w-50 -translate-x-56 rounded-2xl py-16 xl:block`}
+    >
       <ul className="toc-menu h-full w-full overflow-x-hidden px-4">
         {menuList.map((item, key) => {
           return (
@@ -38,7 +40,7 @@ export default function TocMenu({ menuList }: Props) {
               <Link
                 href={item.url}
                 className={
-                  'block truncate text-gray-600 hover:text-violet-600' +
+                  'dark:text-xyz-300 block truncate text-gray-600 hover:text-violet-600' +
                   ' ' +
                   getFontSize(item.depth)
                 }

@@ -2,6 +2,7 @@
 
 import siteMetadata from '@/data/siteMetadata'
 import Giscus from '@giscus/react'
+
 type Repo = `${string}/${string}`
 const repo = process.env.NEXT_PUBLIC_GISCUS_REPO as Repo
 const repoId = process.env.NEXT_PUBLIC_GISCUS_REPOSITORY_ID!
@@ -12,7 +13,7 @@ export default function Comments({ slug }: { slug: string }) {
   if (!siteMetadata.comments?.provider) {
     return null
   }
-  console.log('slug', slug)
+
   return (
     <Giscus
       id="comments"

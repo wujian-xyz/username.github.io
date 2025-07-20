@@ -84,7 +84,7 @@ export default function ListLayoutWithTags({
       <div className="w-full">
         <CardTitle title={title} icon={<Rss size={22} />} />
         <div className="flex flex-col sm:space-x-24">
-          <div className="hidden h-full max-h-screen w-full flex-wrap overflow-auto border-b border-violet-100 sm:flex dark:border-gray-700 dark:shadow-gray-800/40">
+          <div className="dark:border-xyz-900 dark:shadow-xyz-900/40 hidden h-full max-h-screen w-full flex-wrap overflow-auto border-b border-violet-100 sm:flex">
             <div className="px-9 py-4">
               {pathname.startsWith('/blog') ? (
                 <h3 className="text-primary-500 px-2 py-1 font-bold uppercase">所有帖子</h3>
@@ -120,7 +120,7 @@ export default function ListLayoutWithTags({
             </div>
           </div>
           <div>
-            <ul className="px-9">
+            <ul className="dark:divide-xyz-900 divide-y divide-violet-100 px-9">
               {displayPosts.map((post) => {
                 const { path } = post
                 return (

@@ -5,7 +5,7 @@ import 'remark-github-blockquote-alert/alert.css'
 
 import { Space_Grotesk } from 'next/font/google'
 import { Analytics, AnalyticsConfig } from 'pliny/analytics'
-import { SearchProvider, SearchConfig } from 'pliny/search'
+import { SearchProvider, SearchConfig } from '@/components/search/index'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
@@ -90,13 +90,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="bg-gray-100 text-black antialiased max-md:px-4 dark:bg-gray-900 dark:text-white">
+      <body className="dark:bg-xyz-800 bg-gray-100 text-black antialiased max-md:px-4 dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
-
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
             <Header />
-            <main className="relative mx-auto mt-1 max-w-2xl rounded-2xl border border-violet-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
+            <main className="dark:border-xyz-900 dark:bg-xyz-700 relative mx-auto mt-1 max-w-2xl rounded-2xl border border-violet-200 bg-white shadow-xs">
               {children}
             </main>
           </SearchProvider>

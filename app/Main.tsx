@@ -12,11 +12,11 @@ export default function Home({ posts }) {
     <>
       <div className="w-full">
         <CardTitle title="最新的" icon={<CalendarSync size={20} />}>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+          <p className="dark:text-xyz-200 text-lg leading-7 text-gray-500">
             {siteMetadata.description}
           </p>
         </CardTitle>
-        <ul className="divide-y divide-violet-100 px-9 dark:divide-gray-700">
+        <ul className="dark:divide-xyz-900 divide-y divide-violet-100 px-9">
           {!posts.length && '未找到帖子。'}
           {posts.slice(0, MAX_DISPLAY).map((post) => {
             const { slug, ...other } = post
@@ -41,7 +41,7 @@ export default function Home({ posts }) {
         </div>
       )}
 
-      <div className="flex items-center justify-center border-t border-violet-100 bg-gray-50 px-9 py-6 dark:border-gray-700 dark:bg-gray-900/50">
+      <div className="dark:border-xyz-900 dark:bg-xyz-900/40 flex items-center justify-center border-t border-violet-100 bg-gray-50 px-9 py-6">
         <div className="flex space-x-4">
           <SocialIcon kind="mail" href={`mailto:${siteMetadata.email}`} size={6} />
           <SocialIcon kind="github" href={siteMetadata.github} size={6} />

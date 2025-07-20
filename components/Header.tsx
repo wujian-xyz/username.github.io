@@ -1,6 +1,5 @@
 import siteMetadata from '@/data/siteMetadata'
 import headerNavLinks from '@/data/headerNavLinks'
-import Logo from '@/data/logo.svg'
 import Link from './Link'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
@@ -8,7 +7,7 @@ import SearchButton from './SearchButton'
 import { QrCode } from 'lucide-react'
 
 const Header = () => {
-  let headerClass = 'flex items-center w-full max-w-2xl mx-auto justify-between py-4'
+  let headerClass = 'flex items-center w-full max-w-2xl mx-auto relative justify-between py-4 z-20'
   if (siteMetadata.stickyNav) {
     headerClass += ' sticky top-0 z-50'
   }

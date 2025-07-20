@@ -11,7 +11,7 @@ export default function Projects() {
     <>
       <div className="w-full">
         <CardTitle title="项目" icon={<FolderGit2 size={20} />}>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">开源项目</p>
+          <p className="dark:text-xyz-200 text-lg leading-7 text-gray-500">开源项目</p>
         </CardTitle>
         <div className="container px-9 py-8">
           <div className="-m-4 flex flex-wrap">

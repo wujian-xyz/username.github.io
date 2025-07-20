@@ -15,6 +15,15 @@
 }
 
 /* 滚动条手柄悬停 */
+html.dark .toc-menu::-webkit-scrollbar-thumb:hover,
 .toc-menu::-webkit-scrollbar-thumb:hover {
   background: var(--color-violet-500); /* 手柄悬停颜色 */
+}
+
+html.dark .toc-menu::-webkit-scrollbar-track {
+  background: var(--color-xyz-700); /* 轨道颜色 */
+}
+
+html.dark .toc-menu::-webkit-scrollbar-thumb {
+  background: var(--color-xyz-900); /* 手柄颜色 */
 }

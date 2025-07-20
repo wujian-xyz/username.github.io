@@ -26,7 +26,7 @@ const PostItem = ({ path, date, title, tags }) => (
         </div>
         <dl>
           <dt className="sr-only">Published on</dt>
-          <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
+          <dd className="dark:text-xyz-300 text-base leading-6 font-medium text-gray-500">
             <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
           </dd>
         </dl>

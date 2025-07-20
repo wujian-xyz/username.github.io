@@ -127,7 +127,7 @@ export class Header {
 }
 ```
 
-> [Stream](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/stream.ts)类是基于DataView的底层接口实现的，详细[Header](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/header.ts)类实现前github查看。
+> [Stream](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/stream.ts)类是基于DataView的底层接口实现的，详细[Header](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/header.ts)类实现前github查看。
 
 #### 2、逻辑屏幕描述符 - LogicalScreenDescriptor
 
@@ -195,7 +195,7 @@ export class LogicalScreenDescriptor {
 }
 ```
 
-> 点击前往github查看[LogicalScreenDescriptor](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/logicalScreenDescriptor.ts)类实现细节。
+> 点击前往github查看[LogicalScreenDescriptor](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/logicalScreenDescriptor.ts)类实现细节。
 
 #### 3、全局颜色表/局部颜色表 - GlobalColorTable/LocalColorTable
 
@@ -291,7 +291,7 @@ export class GraphicsControlExtension extends BaseExtension {
 }
 ```
 
-> 点击前往github查看[GraphicsControlExtension](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/graphicsControlExtension.ts)类实现细节。
+> 点击前往github查看[GraphicsControlExtension](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/graphicsControlExtension.ts)类实现细节。
 
 5. **建议**：
 
@@ -356,7 +356,7 @@ export class ApplicationExtension {
 }
 ```
 
-> 点击前往github查看[ApplicationExtension](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/applicationExtension.ts)类实现细节。
+> 点击前往github查看[ApplicationExtension](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/applicationExtension.ts)类实现细节。
 
 #### 6、图像描述符- Image Descriptor
 
@@ -431,7 +431,7 @@ export class ImageDescriptor {
 }
 ```
 
-> 点击前往github查看[ImageDescriptor](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/imageDescriptor.ts)类实现细节。
+> 点击前往github查看[ImageDescriptor](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/imageDescriptor.ts)类实现细节。
 
 #### 7、基于表格的图像数据 - Table Based Image Data
 
@@ -467,7 +467,7 @@ export class ImageData {
 }
 ```
 
-> 点击前往github查看[ImageData](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parses/imageData.ts)类实现细节。
+> 点击前往github查看[ImageData](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parses/imageData.ts)类实现细节。
 
 5. **扩展和范围**：该块没有范围，它包含栅格数据。 用于修改基于表格的图像的扩展必须出现在相应的图像描述符之前。
 6. **如附录 F 中所述**：这是[官方文档](http://www.w3.org/Graphics/GIF/spec-gif89a.txt)介绍 `LZW`规则，比较复杂，下次单独介绍。
@@ -621,7 +621,7 @@ export class Parser {
 }
 ```
 
-> 点击前往github查看[Parser](https://github.com/nseeart/gif/blob/main/packages/gif-parser/src/parser.ts)类实现细节。
+> 点击前往github查看[Parser](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser/src/parser.ts)类实现细节。
 
 3. 解码器效果
    ![gif-parser.png](/static/images/gif-parser/gif-parser-16.webp)
@@ -658,10 +658,10 @@ onMounted(() => {
 
 5. github
 
-- demo：[gif](https://github.com/nseeart/gif)
-- 解析器：[git-parser](https://github.com/nseeart/gif/blob/main/packages/gif-parser)
-- 播放器：[gif-player](https://github.com/nseeart/gif/blob/main/packages/gif-player)（原生js）
-- 播放器：[gif-player-vue-next](https://github.com/nseeart/gif/blob/main/packages/gif-player-vue-next)（vue-next组件）
+- demo：[gif](https://github.com/wujian-xyz/gif)
+- 解析器：[git-parser](https://github.com/wujian-xyz/gif/blob/main/packages/gif-parser)
+- 播放器：[gif-player](https://github.com/wujian-xyz/gif/blob/main/packages/gif-player)（原生js）
+- 播放器：[gif-player-vue-next](https://github.com/wujian-xyz/gif/blob/main/packages/gif-player-vue-next)（vue-next组件）
 
 ### 六、参考资料
 

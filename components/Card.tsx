@@ -7,7 +7,7 @@ const Card = ({ title, description, imgSrc, href }) => (
     <div
       className={`${
         imgSrc && 'h-full'
-      } overflow-hidden rounded-xl border-2 border-violet-100/60 dark:border-gray-700/60`}
+      } dark:border-xyz-800 overflow-hidden rounded-xl border-2 border-violet-100/60`}
     >
       {imgSrc &&
         (href ? (
@@ -39,7 +39,7 @@ const Card = ({ title, description, imgSrc, href }) => (
             title
           )}
         </h2>
-        <p className="prose mb-2 max-w-none leading-6 text-gray-500 dark:text-gray-400">
+        <p className="prose dark:text-xyz-100 mb-2 max-w-none leading-6 text-gray-500">
           {description}
         </p>
         {href && (

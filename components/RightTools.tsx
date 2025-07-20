@@ -41,7 +41,7 @@ export default function RightTools({ authorDetails, filePath }: Props) {
                   width={36}
                   height={36}
                   alt="头像"
-                  className="size-9 rounded-full object-cover"
+                  className="size-9 rounded-full bg-gray-300 object-cover"
                 />
               )}
               <dl className="text-sm leading-5 font-medium whitespace-nowrap">

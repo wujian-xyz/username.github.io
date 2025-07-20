@@ -1,7 +1,8 @@
 'use client'
 
 import siteMetadata from '@/data/siteMetadata'
-import Giscus from '@giscus/react'
+import Script from 'next/script'
+import '@/css/comments.css'
 
 type Repo = `${string}/${string}`
 const repo = process.env.NEXT_PUBLIC_GISCUS_REPO as Repo
@@ -15,20 +16,42 @@ export default function Comments({ slug }: { slug: string }) {
   }
 
   return (
-    <Giscus
-      id="comments"
-      repo={repo}
-      repoId={repoId}
-      category={category}
-      categoryId={categoryId}
-      mapping="pathname"
-      term="Welcome to @giscus/react component!"
-      reactionsEnabled="1"
-      emitMetadata="0"
-      inputPosition="top"
-      theme="preferred_color_scheme"
-      lang="zh-CN"
-      loading="lazy"
-    />
+    <>
+      <div className="giscus"></div>
+      <Script
+        src="https://giscus.app/client.js"
+        data-repo={repo}
+        data-repo-id={repoId}
+        data-category={category}
+        data-category-id={categoryId}
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang={siteMetadata.locale}
+        crossOrigin="anonymous"
+        async
+      ></Script>
+    </>
   )
+
+  //   return (
+  //     <Giscus
+  //       id="comments"
+  //       repo={repo}
+  //       repoId={repoId}
+  //       category={category}
+  //       categoryId={categoryId}
+  //       mapping="pathname"
+  //       term="Welcome to @giscus/react component!"
+  //       reactionsEnabled="1"
+  //       emitMetadata="0"
+  //       inputPosition="top"
+  //       theme="preferred_color_scheme"
+  //       lang="zh-CN"
+  //       loading="lazy"
+  //     />
+  //   )
 }

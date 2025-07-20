@@ -19,14 +19,14 @@ export const KBarModal = ({ actions, isLoading }: { actions: Action[]; isLoading
     <KBarPortal>
       <KBarPositioner className="z-50 bg-gray-300/50 p-4 backdrop-blur backdrop-filter dark:bg-black/50">
         <KBarAnimator className="w-full max-w-2xl">
-          <div className="overflow-hidden rounded-2xl border border-violet-300 bg-gray-50 shadow-xs dark:border-gray-800 dark:bg-gray-900">
+          <div className="dark:border-xyz-900 dark:bg-xyz-700 overflow-hidden rounded-2xl border border-violet-300 bg-gray-50 shadow-xs">
             <div className="w-full space-x-4 px-9 py-6">
-              <div className="flex w-full items-center space-x-2 rounded-full bg-gray-200 px-3">
+              <div className="dark:bg-xyz-800 flex w-full items-center space-x-2 rounded-full bg-gray-200 px-3">
                 <span className="block w-5">
-                  <Search size={20} className="text-gray-400" />
+                  <Search size={20} className="text-gray-400 dark:text-gray-600" />
                 </span>
                 <KBarSearch className="h-8 w-full border-none bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none dark:text-gray-200 dark:placeholder-gray-500" />
-                <kbd className="inline-block rounded border border-gray-400 px-1.5 align-middle text-xs leading-4 font-medium tracking-wide whitespace-nowrap text-gray-400">
+                <kbd className="inline-block rounded border border-gray-400 px-1.5 align-middle text-xs leading-4 font-medium tracking-wide whitespace-nowrap text-gray-400 dark:border-gray-600 dark:text-gray-600">
                   ESC
                 </kbd>
               </div>
@@ -55,7 +55,7 @@ const RenderResults = () => {
           <div>
             {typeof item === 'string' ? (
               <div className="pt-3">
-                <div className="text-primary-600 block border-t border-violet-200 px-9 pt-6 pb-3 text-xs font-semibold uppercase dark:border-gray-800">
+                <div className="text-primary-600 dark:border-xyz-900 block border-t border-violet-200 px-9 pt-6 pb-3 text-xs font-semibold uppercase">
                   {item}
                 </div>
               </div>
@@ -100,7 +100,7 @@ const RenderResults = () => {
     )
   } else {
     return (
-      <div className="block border-t border-violet-200 px-4 py-8 text-center text-gray-400 dark:border-gray-800 dark:text-gray-600">
+      <div className="dark:border-xyz-900 dark:text-xyz-300 block border-t border-violet-200 px-4 py-8 text-center text-gray-400">
         No results for your search...
       </div>
     )

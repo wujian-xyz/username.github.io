@@ -5,7 +5,6 @@ import type { CoreContent } from 'pliny/utils/contentlayer'
 import type { Authors } from 'contentlayer/generated'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopButton from '@/components/ScrollTopButton'
-import { ArrowLeft } from 'lucide-react'
 import { Github } from '@/components/social-icons/icons'
 import { useState, useEffect } from 'react'
 import CommentButton from './CommentButton'
@@ -30,12 +29,6 @@ export default function RightTools({ authorDetails, filePath }: Props) {
     return () => window.removeEventListener('scroll', handleWindowScroll)
   }, [])
 
-  const handleScrollTop = () => {
-    window.scrollTo({ top: 0 })
-  }
-  const handleScrollToComment = () => {
-    document.getElementById('comment')?.scrollIntoView()
-  }
   return (
     <div className="fixed top-0 z-0 hidden h-screen w-4xl xl:block">
       <div className="absolute right-0 flex h-full w-50 items-center py-16">

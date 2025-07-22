@@ -2,13 +2,15 @@ import Link from 'next/link'
 import { slug } from 'github-slugger'
 interface Props {
   text: string
+  count: number
 }
 
-const Tag = ({ text }: Props) => {
+const Tag = ({ text, count }: Props) => {
   return (
     <Link
       href={`/tags/${slug(text)}`}
-      className="hover:text-primary-600 dark:hover:text-primary-500 dark:text-xyz-100 mr-3 text-sm font-medium text-gray-600 uppercase"
+      className="dark:text-xyz-20 mr-4 flex rounded-lg py-2 text-sm font-semibold text-gray-600 uppercase hover:text-violet-600"
+      aria-label={`View posts tagged ${text}`}
     >
       {text.split(' ').join('-')}
     </Link>

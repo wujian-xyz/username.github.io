@@ -10,7 +10,6 @@ import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import { ArrowLeft } from 'lucide-react'
 import { Github } from '@/components/social-icons/icons'
-import RightTools from '@/components/RightTools'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
 const discussUrl = (path) =>
@@ -37,7 +36,6 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
 
   return (
     <>
-      <RightTools authorDetails={authorDetails} filePath={filePath} />
       <SectionContainer>
         <article>
           <div className="dark:divide-xyz-900 divide-y divide-violet-100">

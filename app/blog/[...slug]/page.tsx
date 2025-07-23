@@ -14,6 +14,7 @@ import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
 import TocMenu from '@/components/TocMenu'
+import RightTools from '@/components/RightTools'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -97,6 +98,7 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
     return coreContent(authorResults as Authors)
   })
   const mainContent = coreContent(post)
+  const { filePath } = mainContent
   const jsonLd = post.structuredData
   jsonLd['author'] = authorDetails.map((author) => {
     return {
@@ -113,7 +115,11 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <TocMenu menuList={post.toc} />
+
+      <div className="fixed top-16 bottom-16 z-0 hidden w-full max-w-6xl -translate-x-60 xl:block">
+        <TocMenu menuList={post.toc} />
+        <RightTools authorDetails={authorDetails} filePath={filePath} />
+      </div>
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
         <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
       </Layout>

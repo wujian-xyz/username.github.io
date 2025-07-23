@@ -80,11 +80,52 @@ export default function ListLayoutWithTags({
   const displayPosts = initialDisplayPosts.length > 0 ? initialDisplayPosts : posts
 
   return (
-    <div className="w-full">
-      <CardTitle title={title} icon={<Rss size={22} />} />
-      <div className="flex flex-col sm:space-x-24">
-        <div className="dark:border-xyz-900 dark:shadow-xyz-900/40 hidden h-full max-h-screen w-full flex-wrap overflow-auto border-b border-violet-100 sm:flex">
-          <div className="px-9 py-4">
+    <>
+      <div className="fixed top-16 bottom-16 z-0 hidden max-w-6xl -translate-x-60 xl:block">
+        <div className="dark:border-xyz-900 dark:shadow-xyz-900/40 h-full max-h-screen w-60 overflow-auto border-violet-100 p-6 sm:block">
+          <div className="xyz-scrollbar h-full w-full overflow-x-hidden">
+            {pathname.startsWith('/blog') ? (
+              <h3 className="text-primary-500 px-2 py-1 font-bold uppercase">所有帖子</h3>
+            ) : (
+              <Link
+                href={`/blog`}
+                className="hover:text-primary-500 dark:hover:text-primary-500 px-2 py-1 font-bold text-gray-700 uppercase dark:text-gray-300"
+              >
+                所有帖子
+              </Link>
+            )}
+            <ul className="block">
+              {sortedTags.map((t) => {
+                return (
+                  <li key={t} className="my-1 mr-2">
+                    {decodeURI(pathname.split('/tags/')[1]) === slug(t) ? (
+                      <h3 className="text-primary-500 flex items-center justify-between px-2 py-1 text-sm font-bold uppercase">
+                        <span>{t}</span>
+                        <span className="dark:bg-xyz-700 mx-2 h-[1px] flex-1 bg-gray-200"></span>
+                        <span>{tagCounts[t]}</span>
+                      </h3>
+                    ) : (
+                      <Link
+                        href={`/tags/${slug(t)}`}
+                        className="hover:text-primary-500 dark:hover:text-primary-500 dark:text-xyz-300 flex items-center justify-between rounded-sm px-2 py-1 text-sm font-medium text-gray-500 uppercase"
+                        aria-label={`View posts tagged ${t}`}
+                      >
+                        <span>{t}</span>
+                        <span className="dark:bg-xyz-700 mx-2 h-[1px] flex-1 bg-gray-200"></span>
+                        <span>{tagCounts[t]}</span>
+                      </Link>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div className="relative z-2 w-full">
+        <CardTitle title={title} icon={<Rss size={22} />} />
+        <div className="dark:border-xyz-900 dark:shadow-xyz-900/40 block w-full overflow-auto border-b border-violet-100 px-6 py-5 xl:hidden">
+          <div className="xyz-scrollbar h-full w-full overflow-x-hidden">
             {pathname.startsWith('/blog') ? (
               <h3 className="text-primary-500 px-2 py-1 font-bold uppercase">所有帖子</h3>
             ) : (
@@ -118,22 +159,24 @@ export default function ListLayoutWithTags({
             </ul>
           </div>
         </div>
-        <div>
-          <ul className="dark:divide-xyz-900 divide-y divide-violet-100 px-9 pt-1 pb-3">
-            {displayPosts.map((post) => {
-              const { path } = post
-              return (
-                <li key={path} className="py-4">
-                  <PostItem {...post} />
-                </li>
-              )
-            })}
-          </ul>
-          {pagination && pagination.totalPages > 1 && (
-            <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
-          )}
+        <div className="flex flex-col sm:space-x-24">
+          <div>
+            <ul className="dark:divide-xyz-900 divide-y divide-violet-100 px-9 pt-1 pb-3">
+              {displayPosts.map((post) => {
+                const { path } = post
+                return (
+                  <li key={path} className="py-4">
+                    <PostItem {...post} />
+                  </li>
+                )
+              })}
+            </ul>
+            {pagination && pagination.totalPages > 1 && (
+              <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

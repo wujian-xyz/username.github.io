@@ -30,25 +30,24 @@ export default function RightTools({ authorDetails, filePath }: Props) {
   }, [])
 
   return (
-    <div className="fixed top-0 z-0 hidden h-screen w-4xl xl:block">
-      <div className="absolute right-0 flex h-full w-50 items-center py-16">
-        <ul className="block h-48 gap-4 space-y-4 px-4">
-          {authorDetails.map((author) => (
-            <li className="flex items-center space-x-2" key={author.name}>
-              {author.avatar && (
-                <Image
-                  src={author.avatar}
-                  width={36}
-                  height={36}
-                  alt="头像"
-                  className="size-9 rounded-full bg-gray-300 object-cover"
-                />
-              )}
-              <dl className="text-sm leading-5 font-medium whitespace-nowrap">
-                <dt className="sr-only">Name</dt>
-                <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
-                <dt className="sr-only">Twitter</dt>
-                {/* <dd>
+    <div className="absolute top-0 right-0 flex h-full w-60 items-center">
+      <ul className="block h-48 w-full gap-4 space-y-4 pr-6 pl-12">
+        {authorDetails.map((author) => (
+          <li className="flex items-center space-x-2" key={author.name}>
+            {author.avatar && (
+              <Image
+                src={author.avatar}
+                width={36}
+                height={36}
+                alt="头像"
+                className="size-9 rounded-full object-cover"
+              />
+            )}
+            <dl className="text-sm leading-5 font-medium whitespace-nowrap">
+              <dt className="sr-only">Name</dt>
+              <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
+              <dt className="sr-only">Twitter</dt>
+              {/* <dd>
                               {author.twitter && (
                                 <Link
                                   href={author.twitter}
@@ -60,30 +59,29 @@ export default function RightTools({ authorDetails, filePath }: Props) {
                                 </Link>
                               )}
                             </dd> */}
-              </dl>
-            </li>
-          ))}
-          <li className="w-full">
-            <Link
-              className="flex items-center space-x-2 text-sm hover:text-violet-500"
-              href={editUrl(filePath)}
-            >
-              <span className="dark:bg-xyz-300 dark:text-xyz-100 dark:hover:bg-xyz-200 rounded-full bg-gray-300 p-2 text-gray-600 transition-all hover:bg-gray-400">
-                <Github className="size-5" />
-              </span>
-              <span className="text-sm">在GitHub上查看</span>
-            </Link>
+            </dl>
           </li>
-          {siteMetadata.comments?.provider && (
-            <li className={show ? 'block' : 'hidden'}>
-              <CommentButton />
-            </li>
-          )}
+        ))}
+        <li className="w-full">
+          <Link
+            className="flex items-center space-x-2 text-sm hover:text-violet-500"
+            href={editUrl(filePath)}
+          >
+            <span className="dark:bg-xyz-300 dark:text-xyz-100 dark:hover:bg-xyz-200 rounded-full bg-gray-300 p-2 text-gray-600 transition-all hover:bg-gray-400">
+              <Github className="size-5" />
+            </span>
+            <span className="text-sm">在GitHub上查看</span>
+          </Link>
+        </li>
+        {siteMetadata.comments?.provider && (
           <li className={show ? 'block' : 'hidden'}>
-            <ScrollTopButton />
+            <CommentButton />
           </li>
-        </ul>
-      </div>
+        )}
+        <li className={show ? 'block' : 'hidden'}>
+          <ScrollTopButton />
+        </li>
+      </ul>
     </div>
   )
 }

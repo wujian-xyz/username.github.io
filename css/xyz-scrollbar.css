@@ -1,29 +1,29 @@
 /* 整体滚动条 */
-.toc-menu::-webkit-scrollbar {
+.xyz-scrollbar::-webkit-scrollbar {
   width: 4px; /* 滚动条宽度 */
 }
 
 /* 滚动条轨道 */
-.toc-menu::-webkit-scrollbar-track {
+.xyz-scrollbar::-webkit-scrollbar-track {
   background: var(--color-violet-100); /* 轨道颜色 */
 }
 
 /* 滚动条手柄 */
-.toc-menu::-webkit-scrollbar-thumb {
+.xyz-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-violet-200); /* 手柄颜色 */
   border-radius: 2px; /* 手柄圆角 */
 }
 
 /* 滚动条手柄悬停 */
-html.dark .toc-menu::-webkit-scrollbar-thumb:hover,
-.toc-menu::-webkit-scrollbar-thumb:hover {
+html.dark .xyz-scrollbar::-webkit-scrollbar-thumb:hover,
+.xyz-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-violet-500); /* 手柄悬停颜色 */
 }
 
-html.dark .toc-menu::-webkit-scrollbar-track {
+html.dark .xyz-scrollbar::-webkit-scrollbar-track {
   background: var(--color-xyz-700); /* 轨道颜色 */
 }
 
-html.dark .toc-menu::-webkit-scrollbar-thumb {
+html.dark .xyz-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-xyz-900); /* 手柄颜色 */
 }

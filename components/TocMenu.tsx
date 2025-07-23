@@ -1,6 +1,5 @@
 'use client'
 import Link from 'next/link'
-import '@/css/toc-menu.css'
 
 interface TocMenuItem {
   value: string
@@ -30,10 +29,8 @@ function getFontSize(depth: number) {
 
 export default function TocMenu({ menuList }: Props) {
   return (
-    <div
-      className={`fixed top-0 bottom-0 z-10 hidden h-screen w-50 -translate-x-56 rounded-2xl py-16 xl:block`}
-    >
-      <ul className="toc-menu h-full w-full overflow-x-hidden px-4">
+    <div className={`absolute top-0 bottom-0 z-10 h-full w-60 rounded-2xl p-6`}>
+      <ul className="xyz-scrollbar h-full w-full overflow-x-hidden">
         {menuList.map((item, key) => {
           return (
             <li key={key} className="py-1">

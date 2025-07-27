@@ -85,11 +85,11 @@ export default function ListLayoutWithTags({
         <div className="dark:border-xyz-900 dark:shadow-xyz-900/40 h-full max-h-screen w-60 overflow-auto border-violet-100 p-6 sm:block">
           <div className="xyz-scrollbar h-full w-full overflow-x-hidden">
             {pathname.startsWith('/blog') ? (
-              <h3 className="text-primary-500 px-2 py-1 font-bold uppercase">所有帖子</h3>
+              <h3 className="text-primary-500 py-1 font-bold uppercase">所有帖子</h3>
             ) : (
               <Link
                 href={`/blog`}
-                className="hover:text-primary-500 dark:hover:text-primary-500 px-2 py-1 font-bold text-gray-700 uppercase dark:text-gray-300"
+                className="hover:text-primary-500 dark:hover:text-primary-500 py-1 font-bold text-gray-700 uppercase dark:text-gray-300"
               >
                 所有帖子
               </Link>
@@ -107,7 +107,7 @@ export default function ListLayoutWithTags({
                     ) : (
                       <Link
                         href={`/tags/${slug(t)}`}
-                        className="hover:text-primary-500 dark:hover:text-primary-500 dark:text-xyz-300 flex items-center justify-between rounded-sm px-2 py-1 text-sm font-medium text-gray-500 uppercase"
+                        className="hover:text-primary-500 dark:hover:text-primary-500 dark:text-xyz-300 flex items-center justify-between rounded-sm py-1 text-sm font-medium text-gray-500 uppercase"
                         aria-label={`View posts tagged ${t}`}
                       >
                         <span>{t}</span>

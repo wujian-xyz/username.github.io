@@ -15,6 +15,7 @@ import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
 import TocMenu from '@/components/TocMenu'
 import RightTools from '@/components/RightTools'
+import MainContainer from '@/layouts/MainContainer'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -110,7 +111,7 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
   const Layout = layouts[post.layout || defaultLayout]
 
   return (
-    <>
+    <MainContainer>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -123,6 +124,6 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
         <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
       </Layout>
-    </>
+    </MainContainer>
   )
 }

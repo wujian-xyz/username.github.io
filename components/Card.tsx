@@ -2,8 +2,8 @@ import Image from './Image'
 import Link from './Link'
 import { Github } from './social-icons/icons'
 
-const Card = ({ title, description, imgSrc, href }) => (
-  <div className="md max-w-[544px] p-4 md:w-1/2">
+const Card = ({ title, description, imgSrc, href, display = 'block' }) => (
+  <div className={`w-full p-4 md:w-1/2 ${display}`}>
     <div
       className={`${
         imgSrc && 'h-full'
@@ -16,8 +16,8 @@ const Card = ({ title, description, imgSrc, href }) => (
               alt={title}
               src={imgSrc}
               className="object-cover object-center md:h-36 lg:h-48"
-              width={544}
-              height={306}
+              width={668}
+              height={336}
             />
           </Link>
         ) : (

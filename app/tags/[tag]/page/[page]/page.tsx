@@ -4,6 +4,7 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allBlogs } from 'contentlayer/generated'
 import tagData from 'app/tag-data.json' with { type: 'json' }
 import { notFound } from 'next/navigation'
+import MainContainer from '@/layouts/MainContainer'
 
 const POSTS_PER_PAGE = 5
 
@@ -43,11 +44,13 @@ export default async function TagPage(props: { params: Promise<{ tag: string; pa
   }
 
   return (
-    <ListLayout
-      posts={filteredPosts}
-      initialDisplayPosts={initialDisplayPosts}
-      pagination={pagination}
-      title={title}
-    />
+    <MainContainer>
+      <ListLayout
+        posts={filteredPosts}
+        initialDisplayPosts={initialDisplayPosts}
+        pagination={pagination}
+        title={title}
+      />
+    </MainContainer>
   )
 }

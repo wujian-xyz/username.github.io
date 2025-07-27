@@ -3,12 +3,13 @@ import Card from '@/components/Card'
 import { genPageMetadata } from 'app/seo'
 import CardTitle from '@/components/CardTitle'
 import { FolderGit2 } from 'lucide-react'
+import MainContainer from '@/layouts/MainContainer'
 
 export const metadata = genPageMetadata({ title: 'Projects' })
 
 export default function Projects() {
   return (
-    <>
+    <MainContainer>
       <div className="w-full">
         <CardTitle title="项目" icon={<FolderGit2 size={20} />}>
           <p className="dark:text-xyz-200 text-lg leading-7 text-gray-500">开源项目</p>
@@ -27,6 +28,6 @@ export default function Projects() {
           </div>
         </div>
       </div>
-    </>
+    </MainContainer>
   )
 }

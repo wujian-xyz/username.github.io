@@ -90,14 +90,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="dark:bg-xyz-800 bg-gray-100 text-black antialiased max-md:px-4 dark:text-white">
+      <body className="dark:bg-xyz-800 min-h-screen bg-gray-100 text-black antialiased max-md:px-4 dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
             <Header />
-            <main className="dark:border-xyz-900 dark:bg-xyz-700 relative mx-auto mt-1 max-w-2xl rounded-2xl border border-violet-200 bg-white shadow-xs">
-              {children}
-            </main>
+            {children}
           </SearchProvider>
           <Footer />
         </ThemeProviders>

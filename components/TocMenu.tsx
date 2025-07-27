@@ -33,7 +33,7 @@ export default function TocMenu({ menuList }: Props) {
       <ul className="xyz-scrollbar h-full w-full overflow-x-hidden">
         {menuList.map((item, key) => {
           return (
-            <li key={key} className="py-1">
+            <li key={key} className="w-full py-1">
               <Link
                 href={item.url}
                 className={

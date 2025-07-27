@@ -60,8 +60,8 @@ export function Juejin(svgProps: SVGProps<SVGSVGElement>) {
       viewBox="0 0 1024 1024"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      width="200"
-      height="200"
+      width="24"
+      height="24"
       fill="currentColor"
       {...svgProps}
     >

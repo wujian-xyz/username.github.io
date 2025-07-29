@@ -18,7 +18,7 @@ export default async function Page() {
         <CardTitle title="标签" icon={<Rss size={22} />} />
         <div className="px-9 py-8">
           {tagKeys.length === 0 && 'No tags found.'}
-          <div className="grid w-full grid-cols-3 gap-5">
+          <div className="grid w-full grid-cols-3 gap-5 max-sm:grid-cols-2">
             {sortedTags.map((t) => {
               return (
                 <div key={t}>

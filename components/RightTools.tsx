@@ -67,7 +67,7 @@ export default function RightTools({ authorDetails, filePath }: Props) {
             className="flex items-center space-x-2 text-sm hover:text-violet-500"
             href={editUrl(filePath)}
           >
-            <span className="dark:bg-xyz-300 dark:text-xyz-100 dark:hover:bg-xyz-200 rounded-full bg-gray-300 p-2 text-gray-600 transition-all hover:bg-gray-400">
+            <span className="dark:bg-xyz-700 dark:border-xyz-900 rounded-full border border-violet-200 bg-white p-2 text-gray-500 shadow-xs transition-all hover:border-violet-500 hover:text-violet-500">
               <Github className="size-5" />
             </span>
             <span className="text-sm">在GitHub上查看</span>

@@ -20,7 +20,7 @@ export default function Home({ posts }) {
         <div className="grid w-full grid-cols-2 gap-6 xl:grid-cols-3">
           <div className="dark:bg-xyz-700 dark:border-xyz-900 relative col-span-2 overflow-hidden rounded-2xl border border-violet-200 bg-white pt-0 shadow-xs xl:col-span-1 xl:pt-[100%]">
             <div className="relative top-0 left-0 flex h-full w-full flex-col xl:absolute">
-              <header className="dark:bg-xyz-800/50 flex items-center justify-between bg-gray-50 px-6 py-4">
+              <header className="dark:bg-xyz-700/50 flex items-center justify-between bg-gray-50 px-6 py-4">
                 <h1 className="flex sm:leading-10">
                   <span className="mr-1 flex size-6 items-center justify-center text-violet-500">
                     <CalendarSync size={16} />
@@ -62,7 +62,7 @@ export default function Home({ posts }) {
               {projectsData.map((d, index) => {
                 const display = index === 0 ? 'block' : 'hidden'
                 return (
-                  <div className={`w-full ${display}`} key={index}>
+                  <div className={`h-full w-full ${display}`} key={index}>
                     <div className={`${d.imgSrc && 'h-full w-full'} flex flex-col overflow-hidden`}>
                       <div className="flex-1 overflow-hidden rounded-xl">
                         {d.imgSrc &&

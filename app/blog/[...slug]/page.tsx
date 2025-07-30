@@ -119,7 +119,7 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
 
       <div className="fixed top-16 bottom-16 z-0 hidden w-full max-w-6xl -translate-x-60 xl:block">
         <TocMenu menuList={post.toc} />
-        <RightTools authorDetails={authorDetails} filePath={filePath} />
+        <RightTools authorDetails={authorDetails} content={mainContent} />
       </div>
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
         <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />

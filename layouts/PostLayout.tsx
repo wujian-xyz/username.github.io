@@ -8,7 +8,7 @@ import SectionContainer from '@/components/SectionContainer'
 import Image from '@/components/Image'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
-import { ArrowLeft } from 'lucide-react'
+
 import { Github } from '@/components/social-icons/icons'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
@@ -31,8 +31,7 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
-  const { filePath, path, slug, date, title, tags } = content
-  const basePath = path.split('/')[0]
+  const { filePath, slug, date, title, tags } = content
 
   return (
     <>
@@ -152,16 +151,6 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                       )}
                     </div>
                   )}
-                </div>
-                <div className="pt-4 xl:pt-8">
-                  <Link
-                    href={`/${basePath}`}
-                    className="hover:text-primary-600 dark:hover:text-primary-400 flex items-center text-sm text-gray-500"
-                    aria-label="返回列表"
-                  >
-                    <ArrowLeft size={16} />
-                    <span>返回列表</span>
-                  </Link>
                 </div>
               </footer>
             </div>

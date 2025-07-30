@@ -1,7 +1,6 @@
 'use client'
 
 import siteMetadata from '@/data/siteMetadata'
-// import Script from 'next/script'
 import '@/css/comments.css'
 import { useEffect, useState } from 'react'
 import Giscus from '@giscus/react'
@@ -28,10 +27,6 @@ function getSystemTheme() {
 }
 
 export default function Comments({ slug }: { slug: string }) {
-  if (!siteMetadata.comments?.provider) {
-    return null
-  }
-
   const [mounted, setMounted] = useState(false)
   const [theme, setTheme] = useState(LIGHT_THEME_NAME)
 
@@ -60,6 +55,10 @@ export default function Comments({ slug }: { slug: string }) {
       observer.disconnect()
     }
   }, [])
+
+  if (!siteMetadata.comments?.provider) {
+    return null
+  }
 
   return (
     <div id={id} className="w-full">

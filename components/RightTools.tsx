@@ -2,22 +2,25 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { CoreContent } from 'pliny/utils/contentlayer'
-import type { Authors } from 'contentlayer/generated'
+import type { Blog, Authors } from 'contentlayer/generated'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopButton from '@/components/ScrollTopButton'
 import { Github } from '@/components/social-icons/icons'
 import { useState, useEffect } from 'react'
 import CommentButton from './CommentButton'
+import { ArrowLeft } from 'lucide-react'
 
 const editUrl = (path: string) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
 
 interface Props {
-  filePath: string
+  content: CoreContent<Blog>
   authorDetails: CoreContent<Authors>[]
 }
 
-export default function RightTools({ authorDetails, filePath }: Props) {
+export default function RightTools({ authorDetails, content }: Props) {
   const [show, setShow] = useState(false)
+  const { filePath, path } = content
+  const basePath = path.split('/')[0]
 
   useEffect(() => {
     const handleWindowScroll = () => {
@@ -31,7 +34,7 @@ export default function RightTools({ authorDetails, filePath }: Props) {
 
   return (
     <div className="absolute top-0 right-0 flex h-full w-60 items-center">
-      <ul className="block h-48 w-full gap-4 space-y-4 pr-6 pl-12">
+      <ul className="block h-62 w-full gap-4 space-y-4 pr-6 pl-12">
         {authorDetails.map((author) => (
           <li className="flex items-center space-x-2" key={author.name}>
             {author.avatar && (
@@ -71,6 +74,18 @@ export default function RightTools({ authorDetails, filePath }: Props) {
               <Github className="size-5" />
             </span>
             <span className="text-sm">在GitHub上查看</span>
+          </Link>
+        </li>
+        <li className="w-full">
+          <Link
+            href={`/${basePath}`}
+            className="flex items-center space-x-2 text-sm hover:text-violet-500"
+            aria-label="返回列表"
+          >
+            <span className="dark:bg-xyz-700 dark:border-xyz-900 cursor-pointer rounded-full border border-violet-200 bg-white p-2 text-gray-500 shadow-xs transition-all hover:border-violet-500 hover:text-violet-500">
+              <ArrowLeft size={20} />
+            </span>
+            <span>返回列表</span>
           </Link>
         </li>
         {siteMetadata.comments?.provider && (
